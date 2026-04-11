@@ -1,7 +1,7 @@
-// ====================== AI PERSONA ENGINE v5.0 (Full Integration) ======================
+// ====================== AI PERSONA ENGINE v5.0 (Full Integration + Enhanced Replies) ======================
 // 450+ realistic personas · 2000+ templates · Typos · Reply chains · Testimonials
 // Join stickers · Autonomous · localStorage persistence · Persona memory · Social dynamics
-// =======================================================================================
+// =========================================================================================================
 
 (function(){
   "use strict";
@@ -425,13 +425,51 @@
     setTimeout(()=>{ if(!simulationActive) return; showTyping({name, avatar}); setTimeout(()=>{ hideTyping(); if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName:name, senderAvatar:avatar, text: pick(["thanks for the warm welcome!","excited to be here","hello everyone!"]), time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}), personaId:'join_'+Date.now() }); },1500); },3000);
   }
 
+  // ENHANCED REPLY FUNCTION with contextual reactions and reply preview
   function maybeSendReply(){
-    if(!recentMessages.length || Math.random()>0.2) return false;
-    const target = pick(recentMessages); if(target.personaId===lastPersonaId) return false;
-    const persona = pickDifferentPersona(); if(!persona) return false;
-    const text = pick(["agree with this 💯","that's what I'm saying","exactly!","good point","I was thinking the same","🔥🔥","well said","facts","this is the way","couldn't agree more","true","yup","this 👆"]);
-    const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName: persona.name, senderAvatar: persona.avatar, text, time: timeStr, personaId: persona.id, replyTo: { senderName: target.senderName, text: target.text.substring(0,40) } });
+    if(!recentMessages.length || Math.random() > 0.28) return false;
+    
+    // Pick a random recent message from a different persona
+    const candidates = recentMessages.filter(m => m.personaId !== lastPersonaId);
+    if(candidates.length === 0) return false;
+    
+    const target = pick(candidates);
+    const persona = pickDifferentPersona();
+    if(!persona) return false;
+    
+    // Contextual replies based on target message content
+    let replyText = "";
+    const lowerText = target.text.toLowerCase();
+    
+    if(lowerText.includes("win") || lowerText.includes("profit") || lowerText.includes("%") || lowerText.includes("tp")){
+      replyText = pick(["nice win! 🔥", "congrats on that profit", "that's what I'm talking about", "let's gooo", "🚀🚀", "well played"]);
+    } else if(lowerText.includes("loss") || lowerText.includes("lost") || lowerText.includes("stop") || lowerText.includes("missed")){
+      replyText = pick(["tough one mate", "next trade will be better", "happens to everyone", "keep your head up", "you'll get the next one", "part of the game"]);
+    } else if(lowerText.includes("?") || lowerText.includes("how") || lowerText.includes("what")){
+      replyText = pick(["good question", "I was wondering the same", "anyone have an answer?", "would like to know too", "curious about that as well"]);
+    } else if(lowerText.includes("signal") || lowerText.includes("entry") || lowerText.includes("trade")){
+      replyText = pick(["following this 📈", "already in", "looks solid", "agree with the setup", "I'm watching this too"]);
+    } else {
+      replyText = pick(["exactly!", "well said", "facts 💯", "this 👆", "couldn't agree more", "🔥🔥", "for real", "no cap"]);
+    }
+    
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    
+    if(chatAPI.addIncomingMessage){
+      chatAPI.addIncomingMessage({
+        senderName: persona.name,
+        senderAvatar: persona.avatar,
+        text: replyText,
+        time: timeStr,
+        personaId: persona.id,
+        replyTo: { 
+          senderName: target.senderName, 
+          text: target.text.substring(0, 50) 
+        }
+      });
+    }
+    
     lastPersonaId = persona.id;
     return true;
   }
@@ -576,13 +614,6 @@
     updateSentiment();
     save(PERSONA_KEY, personaState);
   };
-
-  // Restore chat history on load
-  window.addEventListener("load", () => {
-    if(chatAPI.addIncomingMessage){
-      chatHistory.forEach(msg => chatAPI.addIncomingMessage(msg));
-    }
-  });
 
   // ====================== V5: SOCIAL DYNAMICS ======================
   (function(){
