@@ -1,7 +1,7 @@
-// ====================== AI PERSONA ENGINE v5.0 (Full Integration + Enhanced Replies) ======================
+// ====================== AI PERSONA ENGINE v5.0 (COMPLETE) ======================
 // 450+ realistic personas · 2000+ templates · Typos · Reply chains · Testimonials
 // Join stickers · Autonomous · localStorage persistence · Persona memory · Social dynamics
-// =========================================================================================================
+// =================================================================================
 
 (function(){
   "use strict";
@@ -14,7 +14,7 @@
     TESTIMONIAL_CHANCE: 0.15,
     JOIN_CHANCE: 0.08,
     MAX_BURST_MESSAGES: 6,
-    ENABLE_LOGGING: false
+    ENABLE_LOGGING: true   // set to false in production
   };
 
   const MessageType = {
@@ -468,6 +468,7 @@
           text: target.text.substring(0, 50) 
         }
       });
+      log(`🤖 ${persona.name} replied to ${target.senderName}: "${replyText}"`);
     }
     
     lastPersonaId = persona.id;
@@ -715,6 +716,19 @@
       if(Math.random() < 0.2) panicPush();
     }, 12000);
   })();
+
+  // ====================== USER MESSAGE LISTENER (for reply chains) ======================
+  window.onUserMessage = function(msg) {
+    recentMessages.push({ 
+      id: 'user_' + Date.now(), 
+      personaId: 'user', 
+      senderName: msg.senderName, 
+      text: msg.text, 
+      element: null 
+    });
+    if(recentMessages.length > 30) recentMessages.shift();
+    log(`User message added to recentMessages: ${msg.text}`);
+  };
 
   log(`🤖 AI Persona Engine v5.0 loaded with ${personas.length} personas.`);
 })();
