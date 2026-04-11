@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* ========== FULL ORIGINAL STYLES ========== */
+    /* ========== FULL ORIGINAL STYLES (unchanged) ========== */
     :root{
       --bg:#ebf1fa; --card:#ffffff; --ink:#1f2633; --muted:#7f8794;
       --blue:#2e9fe8; --blue-dark:#24263d; --green:#4ab54d; --yellow:#f3bf23;
@@ -273,12 +273,6 @@
       width:64px;height:64px;border-radius:20px;background:#f8fbff;border:1px solid #edf2f8;
       display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.8);
     }
-    .chat-avatar-support{background:linear-gradient(180deg,#fbfdff 0%,#f4f9ff 100%);}
-    .chat-support-ring{
-      width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;
-      box-shadow:0 4px 12px rgba(15,23,42,.06),inset 0 0 0 1px #eef2f8;
-    }
-    .chat-brand-mark{width:28px;height:20px;}
     .chat-avatar-general{background:linear-gradient(180deg,#ffffff 0%,#f7f9fc 100%);}
     .chat-content{flex:1 1 auto;min-width:0;}
     .chat-row-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
@@ -288,7 +282,6 @@
       display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:4px 9px;border-radius:999px;
       font-size:11px;font-weight:700;letter-spacing:.2px;width:max-content;
     }
-    .chat-status.live{background:#ecfdf3;color:#1e7a3b;border:1px solid #cdeed8;}
     .chat-status.muted{background:#f3f6fb;color:#6b7280;border:1px solid #e4eaf3;}
     .chat-time{font-size:13px;color:#8a93a2;white-space:nowrap;flex:0 0 auto;}
     .chat-preview{
@@ -305,7 +298,7 @@
       display:flex;align-items:center;justify-content:center;color:#9aa3b2;flex:0 0 auto;
     }
 
-    /* ---------- CHAT ROOM SHELL ---------- */
+    /* ---------- CHAT ROOM SHELL (unchanged) ---------- */
     .chat-room-shell{
       position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:#fff;
       display:flex;flex-direction:column;padding:12px 12px 0;max-width:430px;margin:0 auto;
@@ -406,7 +399,7 @@
     .composer-input-wrap input{width:100%;height:100%;border:none;outline:none;background:transparent;font-size:14px;color:#1f2633;}
     .composer-input-wrap input::placeholder{color:#98a2b3;}
 
-    /* ---------- BOTTOM NAV ---------- */
+    /* ---------- BOTTOM NAV (unchanged) ---------- */
     .bottom-nav{
       position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e5eaf2;
       box-shadow:0 -2px 10px rgba(15,23,42,.04);z-index:40;padding-bottom:env(safe-area-inset-bottom);
@@ -424,6 +417,115 @@
     svg.lucide,i[data-lucide] svg{stroke-width:1.7;}
     .text-blue-icon,.text-blue-icon svg{color:#2fa5ef;stroke:#2fa5ef;}
 
+    /* ---------- FLOATING TELEGRAM SUPPORT PILL ---------- */
+    .telegram-support {
+      position: fixed;
+      bottom: 90px;
+      right: 16px;
+      z-index: 50;
+      background: #2f98e5;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.2s;
+      border: none;
+      font-family: inherit;
+    }
+    .telegram-support:hover {
+      transform: scale(1.02);
+      background: #1f7ab3;
+    }
+    .telegram-support i {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ---------- ACTIVATION MODAL ---------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.2s;
+    }
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .modal-container {
+      background: white;
+      max-width: 320px;
+      width: 85%;
+      border-radius: 28px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+    }
+    .modal-icon {
+      background: #fef3c7;
+      width: 64px;
+      height: 64px;
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .modal-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #1f2937;
+    }
+    .modal-message {
+      font-size: 15px;
+      color: #4b5563;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .modal-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal-support-btn {
+      background: #2f98e5;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .modal-close-btn {
+      background: #e5e7eb;
+      color: #374151;
+      border: none;
+      padding: 10px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+    }
     @media (max-width:390px){
       .app{padding-left:8px;padding-right:8px;}
       .brand-text{font-size:15px;}
@@ -445,12 +547,13 @@
       .chat-support-ring{width:46px;height:46px;}
       .chat-brand-mark{width:25px;height:18px;}
       .chat-title{font-size:16px;}
+      .telegram-support { bottom: 80px; right: 12px; padding: 8px 14px; font-size: 13px; }
     }
   </style>
 </head>
 <body>
 <div class="app" id="appContainer">
-  <!-- HOME PAGE -->
+  <!-- HOME PAGE (unchanged) -->
   <div id="homePage" class="page">
     <div class="home-hero">
       <div class="home-top">
@@ -529,7 +632,7 @@
     </div>
   </div>
 
-  <!-- TRAINING PAGE -->
+  <!-- TRAINING PAGE (unchanged) -->
   <div id="trainingPage" class="page">
     <div class="page-header-card"><div><div class="page-kicker">Beginner guide</div><h2 class="page-title">Training for New Users</h2><p class="page-text">Built for new users who have not activated yet, with simple lessons that explain the app before they use anything live.</p></div><i data-lucide="book-open" class="w-10 h-10 text-sky-500"></i></div>
     <div class="page-section-title">What members get</div>
@@ -542,16 +645,26 @@
     </div>
   </div>
 
-  <!-- CHAT PAGE (list) -->
+  <!-- CHAT PAGE (list) – only General Chat remains -->
   <div id="chatPage" class="page">
     <div class="chat-section-label">Choose a chat</div>
     <div class="chat-list" id="chatList">
-      <button class="chat-item" data-room="support" id="chatSupportBtn"><div class="chat-avatar chat-avatar-support"><div class="chat-support-ring"><div class="brand-mark chat-brand-mark"></div></div></div><div class="chat-content"><div class="chat-row-top"><div class="chat-title-wrap"><div class="chat-title">Customer Support</div><div class="chat-status live">Online</div></div><div class="chat-time">3:08 PM</div></div><div class="chat-preview">Ask questions, get help, and receive account support from the team.</div><div class="chat-meta"><span><i data-lucide="shield-check"></i> Verified</span><span><i data-lucide="clock-3"></i> Fast reply</span></div></div><div class="chat-action"><i data-lucide="chevron-right"></i></div></button>
-      <button class="chat-item" data-room="general" id="chatGeneralBtn"><div class="chat-avatar chat-avatar-general"><i data-lucide="messages-square" class="w-7 h-7 text-slate-600"></i></div><div class="chat-content"><div class="chat-row-top"><div class="chat-title-wrap"><div class="chat-title">General Chat</div><div class="chat-status muted">Community</div></div><div class="chat-time">3:08 PM</div></div><div class="chat-preview">Talk with members, share ideas, and stay updated with the group.</div><div class="chat-meta"><span><i data-lucide="users"></i> Active room</span><span><i data-lucide="message-circle-more"></i> Group chat</span></div></div><div class="chat-action"><i data-lucide="chevron-right"></i></div></button>
+      <button class="chat-item" data-room="general" id="chatGeneralBtn">
+        <div class="chat-avatar chat-avatar-general"><i data-lucide="messages-square" class="w-7 h-7 text-slate-600"></i></div>
+        <div class="chat-content">
+          <div class="chat-row-top">
+            <div class="chat-title-wrap"><div class="chat-title">General Chat</div><div class="chat-status muted">Community</div></div>
+            <div class="chat-time">3:08 PM</div>
+          </div>
+          <div class="chat-preview">Talk with members, share ideas, and stay updated with the group.</div>
+          <div class="chat-meta"><span><i data-lucide="users"></i> Active room</span><span><i data-lucide="message-circle-more"></i> Group chat</span></div>
+        </div>
+        <div class="chat-action"><i data-lucide="chevron-right"></i></div>
+      </button>
     </div>
   </div>
 
-  <!-- REFERRALS PAGE -->
+  <!-- REFERRALS PAGE (unchanged) -->
   <div id="referralsPage" class="page">
     <div class="page-header-card referrals-header"><div><div class="page-kicker">Referral rewards</div><h2 class="page-title">Refer and Earn</h2><p class="page-text">Invite new users and earn up to 20% commission on referrals, even before activation.</p></div><i data-lucide="users" class="w-10 h-10 text-sky-500"></i></div>
     <div class="ref-grid"><div class="ref-stat-card"><span class="ref-stat-label">Invites</span><span class="ref-stat-value">0</span></div><div class="ref-stat-card"><span class="ref-stat-label">Active</span><span class="ref-stat-value">0</span></div><div class="ref-stat-card"><span class="ref-stat-label">Commission</span><span class="ref-stat-value">0%</span></div><div class="ref-stat-card"><span class="ref-stat-label">Rank</span><span class="ref-stat-value">#0</span></div></div>
@@ -559,7 +672,7 @@
     <div class="page-section-title">Referral activity</div><div class="activity-list"><div class="activity-item"><span>No referral activity yet</span><span>0</span></div></div>
   </div>
 
-  <!-- PROGRESS PAGE -->
+  <!-- PROGRESS PAGE (unchanged) -->
   <div id="progressPage" class="page">
     <div class="page-header-card"><div><div class="page-kicker">Beginner progress</div><h2 class="page-title">Progress for New Users</h2><p class="page-text">Track learning progress before activation so new users can move step by step without rushing into live settings.</p></div><i data-lucide="trending-up" class="w-10 h-10 text-sky-500"></i></div>
     <div class="progress-card">
@@ -575,7 +688,7 @@
   </div>
 </div>
 
-<!-- CHAT ROOM SHELL -->
+<!-- CHAT ROOM SHELL (unchanged) -->
 <div class="chat-room-shell" id="chatRoomShell">
   <div class="chat-room-header">
     <button class="chat-back-btn" id="chatBackBtn"><i data-lucide="arrow-left"></i></button>
@@ -594,7 +707,32 @@
   <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- FLOATING TELEGRAM SUPPORT PILL -->
+<button class="telegram-support" id="telegramSupportBtn">
+  <i data-lucide="send"></i> Telegram Support
+</button>
+
+<!-- ACTIVATION MODAL (hidden by default) -->
+<div class="modal-overlay" id="activationModal">
+  <div class="modal-container">
+    <div class="modal-icon">
+      <i data-lucide="alert-triangle" class="w-8 h-8 text-amber-500"></i>
+    </div>
+    <div class="modal-title">Activation Required</div>
+    <div class="modal-message">
+      You need to activate your PRO account to receive real signals.<br><br>
+      Please contact support via Telegram to complete activation.
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-support-btn" id="modalSupportBtn">
+        <i data-lucide="send" class="w-4 h-4"></i> Contact Support
+      </button>
+      <button class="modal-close-btn" id="modalCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV (unchanged) -->
 <div class="bottom-nav">
   <div class="bottom-nav-inner">
     <button data-page="home" class="nav-btn"><i data-lucide="home"></i><span>Home</span></button>
@@ -653,11 +791,48 @@
     });
     function updateClock(){ document.getElementById('currentTime').innerText = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
     setInterval(updateClock,1000); setInterval(updateAccuracy,60000); updateClock(); updateAccuracy(); renderSignal();
-    document.getElementById('getSignalBtn').onclick = ()=>{ if(!isSubscribed) return; if(activeTimer) clearTimeout(activeTimer); liveSignalIndex++; renderSignal(); };
+    
+    // ========== MODAL FOR GET SIGNAL BUTTON ==========
+    const getSignalBtn = document.getElementById('getSignalBtn');
+    const modalOverlay = document.getElementById('activationModal');
+    const modalSupportBtn = document.getElementById('modalSupportBtn');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const telegramSupportBtn = document.getElementById('telegramSupportBtn');
+
+    function openModal() {
+      modalOverlay.classList.add('active');
+    }
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+    }
+    function contactSupport() {
+      // Replace with your actual Telegram contact link
+      window.open('https://t.me/your_support_username', '_blank');
+    }
+
+    getSignalBtn.onclick = (e) => {
+      e.preventDefault();
+      openModal();
+    };
+    modalSupportBtn.onclick = () => {
+      contactSupport();
+      closeModal();
+    };
+    modalCloseBtn.onclick = closeModal;
+    // Click outside modal to close
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+    // Telegram floating button
+    telegramSupportBtn.onclick = () => {
+      contactSupport();
+    };
+
+    // The rest of the timer logic (optional, but keep existing functionality)
     const timerBtns = document.querySelectorAll('.timer-btn');
     timerBtns.forEach(btn => btn.onclick = ()=>{ if(!isSubscribed) return; const s = parseInt(btn.dataset.seconds); if(activeTimer) clearTimeout(activeTimer); activeTimer = setTimeout(()=>{ activeTimer=null; }, s*1000); timerBtns.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); });
 
-    // ========== CHAT LOGIC (WITH ROOM-PER-ROOM PERSISTENCE & FIXES) ==========
+    // ========== CHAT LOGIC (same as before, with only general chat) ==========
     const ROOM_STORAGE_PREFIX = 'pocketOption_chat_messages_';
     const LEGACY_STORAGE_KEY = 'pocketOption_chat_messages';
     let isHydratingRoom = false;
@@ -666,15 +841,14 @@
           chatMessages = document.getElementById('chatMessages'), chatInput = document.getElementById('chatInput'),
           chatSendBtn = document.getElementById('chatSendBtn'), chatSendIconWrap = document.getElementById('chatSendIconWrap'),
           chatBackBtn = document.getElementById('chatBackBtn'), chatRoomName = document.getElementById('chatRoomName'),
-          chatRoomStatus = document.getElementById('chatRoomStatus'), chatSupportBtn = document.getElementById('chatSupportBtn'),
-          chatGeneralBtn = document.getElementById('chatGeneralBtn'), replyPreviewBar = document.getElementById('replyPreviewBar'),
-          replyPreviewText = document.getElementById('replyPreviewText'), replyPreviewCloseBtn = document.getElementById('replyPreviewCloseBtn'),
-          unreadPill = document.getElementById('unreadPill'), unreadCountSpan = document.getElementById('unreadCount'),
-          galleryBtn = document.getElementById('galleryBtn'), imageUploadInput = document.getElementById('imageUploadInput');
+          chatRoomStatus = document.getElementById('chatRoomStatus'), chatGeneralBtn = document.getElementById('chatGeneralBtn'),
+          replyPreviewBar = document.getElementById('replyPreviewBar'), replyPreviewText = document.getElementById('replyPreviewText'),
+          replyPreviewCloseBtn = document.getElementById('replyPreviewCloseBtn'), unreadPill = document.getElementById('unreadPill'),
+          unreadCountSpan = document.getElementById('unreadCount'), galleryBtn = document.getElementById('galleryBtn'),
+          imageUploadInput = document.getElementById('imageUploadInput');
 
     const chatRooms = {
-      general: { name:'General Chat', status:'Community', statusClass:'muted', starter:[ {side:'incoming',text:'Welcome to General Chat.',time:'3:08 PM'}, {side:'outgoing',text:'Glad to be here.',time:'3:09 PM'} ] },
-      support: { name:'Customer Support', status:'Online', statusClass:'live', starter:[ {side:'incoming',text:'Hello, support is ready.',time:'3:08 PM'}, {side:'outgoing',text:'I need help with my account.',time:'3:09 PM'} ] }
+      general: { name:'General Chat', status:'Community', statusClass:'muted', starter:[ {side:'incoming',text:'Welcome to General Chat.',time:'3:08 PM'}, {side:'outgoing',text:'Glad to be here.',time:'3:09 PM'} ] }
     };
     let currentChatRoom = 'general', replyingToMessage = null, unreadMessages = 0, isUserAtBottom = true, pendingImage = null;
 
@@ -682,10 +856,7 @@
 
     function saveMessagesToStorage() {
       if (isHydratingRoom) return;
-      if (!currentChatRoom) {
-        console.warn('saveMessagesToStorage: no currentChatRoom');
-        return;
-      }
+      if (!currentChatRoom) { console.warn('saveMessagesToStorage: no currentChatRoom'); return; }
       try {
         const messages = [];
         document.querySelectorAll('#chatMessages .chat-msg-row').forEach(row => {
@@ -693,7 +864,6 @@
           const bubble = row.querySelector('.chat-bubble');
           if (!bubble) return;
           const senderName = bubble.querySelector('.chat-sender-name')?.innerText || (isOutgoing ? 'You' : 'Unknown');
-          // Extract text (excluding meta, time, reply preview)
           const tempDiv = document.createElement('div');
           const bubbleClone = bubble.cloneNode(true);
           bubbleClone.querySelectorAll('.chat-bubble-meta, .chat-bubble-time, .reply-preview-bar').forEach(el => el.remove());
@@ -715,19 +885,14 @@
         const key = roomStorageKey(currentChatRoom);
         localStorage.setItem(key, JSON.stringify(messages));
         console.log(`✅ Saved ${messages.length} messages to ${key}`);
-      } catch (e) {
-        console.error('saveMessagesToStorage error', e);
-      }
+      } catch(e) { console.error('saveMessagesToStorage error', e); }
     }
 
     function loadMessagesFromStorage(roomKey = currentChatRoom) {
       const key = roomStorageKey(roomKey);
       let stored = localStorage.getItem(key);
       if (!stored && roomKey === 'general') stored = localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (!stored) {
-        console.log(`ℹ️ No stored messages for ${key}`);
-        return;
-      }
+      if (!stored) { console.log(`ℹ️ No stored messages for ${key}`); return; }
       try {
         const messages = JSON.parse(stored);
         console.log(`📥 Loading ${messages.length} messages from ${key}`);
@@ -739,25 +904,26 @@
           }
         }
         if (!localStorage.getItem(key)) localStorage.setItem(key, stored);
-      } catch (e) {
-        console.warn('Could not load chat history', e);
-      }
+      } catch(e) { console.warn('Could not load chat history', e); }
     }
 
     function getColorFromString(str){ let hash=0; for(let i=0;i<str.length;i++) hash = str.charCodeAt(i)+((hash<<5)-hash); return `hsl(${Math.abs(hash)%360},70%,45%)`; }
     function todayStickerText(){ return `Today • ${new Date().toLocaleDateString('en-GB')}`; }
     function setComposerMode(){ const hasText = chatInput.value.trim().length>0; chatSendBtn.classList.toggle('is-send',hasText); chatSendIconWrap.innerHTML = hasText ? '<i data-lucide="send"></i>' : '<i data-lucide="mic"></i>'; lucide.createIcons(); }
-    function buildIncomingAvatar(roomKey){ return roomKey==='support' ? '<div class="chat-avatar-bubble"><div class="brand-mark" style="width:22px;height:16px;"></div></div>' : '<div class="chat-avatar-bubble"><i data-lucide="messages-square"></i></div>'; }
+    function buildIncomingAvatar(){ return '<div class="chat-avatar-bubble"><i data-lucide="messages-square"></i></div>'; }
     function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
 
     function buildIncomingMessage(msgData, shouldSave = true){
       const row = document.createElement('div'); row.className = 'chat-msg-row incoming';
       const avatarDiv = document.createElement('div'); avatarDiv.className = 'chat-avatar-bubble';
-      if(msgData.senderAvatar && msgData.senderAvatar.startsWith('assets/')){
+      const isValidAvatarUrl = msgData.senderAvatar && (msgData.senderAvatar.startsWith('http') || msgData.senderAvatar.startsWith('assets/'));
+      if(isValidAvatarUrl){
         const img = document.createElement('img'); img.src = msgData.senderAvatar; img.alt = msgData.senderName;
-        img.onerror = ()=>{ avatarDiv.innerHTML = ''; avatarDiv.textContent = msgData.senderName.charAt(0).toUpperCase(); avatarDiv.style.background='#cbd5e1'; };
+        img.onerror = () => { avatarDiv.innerHTML = ''; avatarDiv.textContent = msgData.senderName.charAt(0).toUpperCase(); avatarDiv.style.background = '#cbd5e1'; };
         avatarDiv.appendChild(img);
-      } else { avatarDiv.textContent = msgData.senderName.charAt(0).toUpperCase(); avatarDiv.style.background='#cbd5e1'; }
+      } else {
+        avatarDiv.textContent = msgData.senderName.charAt(0).toUpperCase(); avatarDiv.style.background = '#cbd5e1';
+      }
       const bubble = document.createElement('div'); bubble.className = 'chat-bubble incoming';
       const nameColor = msgData.senderName==='Trade Result' ? '#2f98e5' : getColorFromString(msgData.senderName);
       let content = `<div class="chat-sender-name" style="color:${nameColor};">${escapeHtml(msgData.senderName)}</div>`;
@@ -798,7 +964,7 @@
         bubble.innerHTML = `${content}<span class="chat-bubble-time" style="display:block;margin-top:6px;font-size:11px;opacity:.75;">${time}</span>`;
       }
       if(side==='incoming'){
-        const avatar = document.createElement('div'); avatar.className = 'chat-avatar-bubble'; avatar.innerHTML = buildIncomingAvatar(currentChatRoom);
+        const avatar = document.createElement('div'); avatar.className = 'chat-avatar-bubble'; avatar.innerHTML = buildIncomingAvatar();
         row.appendChild(avatar);
       }
       row.appendChild(bubble);
@@ -807,12 +973,10 @@
       return bubble;
     }
 
-    // ROOM STATE FIX: global variable and event dispatch
     function openChatRoom(roomKey){
       currentChatRoom = roomKey;
       window.__activeChatRoom = roomKey;
       window.dispatchEvent(new CustomEvent('chat-room-changed', { detail: { roomKey } }));
-
       const room = chatRooms[roomKey];
       chatRoomShell.classList.add('is-open');
       appContainer.classList.add('chat-open');
@@ -851,12 +1015,7 @@
       const text = chatInput.value.trim(); if(!text && !pendingImage) return;
       const now = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
       const bubble = addMessageToFeed('outgoing', text, now, 'sent', pendingImage);
-      
-      // Notify AI script about user message
-      if(window.onUserMessage) {
-        window.onUserMessage({ senderName: 'You', text: text });
-      }
-      
+      if(window.onUserMessage) { window.onUserMessage({ senderName: 'You', text: text }); }
       pendingImage = null;
       chatInput.placeholder = 'Message...';
       chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -868,7 +1027,6 @@
     }
 
     chatGeneralBtn.onclick = ()=> openChatRoom('general');
-    chatSupportBtn.onclick = ()=> openChatRoom('support');
     chatBackBtn.onclick = closeChatRoom;
     chatInput.oninput = setComposerMode;
     chatInput.onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); sendChatMessage(); } };
@@ -876,12 +1034,17 @@
     galleryBtn.onclick = ()=> imageUploadInput.click();
     imageUploadInput.onchange = e=>{ const file = e.target.files[0]; if(file){ const reader = new FileReader(); reader.onload = ev=>{ pendingImage = ev.target.result; chatInput.placeholder='Add caption (optional)'; }; reader.readAsDataURL(file); } };
 
-    // CHAT API BRIDGE (with fixed getCurrentRoom)
     window.chatAPI = {
       showTypingForPersona: (persona) => {
         document.getElementById('aiTypingIndicator')?.remove();
         const row = document.createElement('div'); row.className = 'chat-msg-row incoming typing-row'; row.id = 'aiTypingIndicator';
-        const avatarContent = persona.avatar?.startsWith('assets/') ? `<img src="${persona.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${persona.name.charAt(0)}';">` : persona.name.charAt(0);
+        const isValidAvatarUrl = persona.avatar && (persona.avatar.startsWith('http') || persona.avatar.startsWith('assets/'));
+        let avatarContent = '';
+        if(isValidAvatarUrl){
+          avatarContent = `<img src="${persona.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${persona.name.charAt(0)}';">`;
+        } else {
+          avatarContent = persona.name.charAt(0);
+        }
         row.innerHTML = `<div class="chat-avatar-bubble">${avatarContent}</div><div class="chat-bubble incoming typing-bubble"><span></span><span></span><span></span></div>`;
         chatMessages.appendChild(row); chatMessages.scrollTop = chatMessages.scrollHeight;
       },
@@ -915,7 +1078,7 @@
     lucide.createIcons();
   })();
 </script>
-<!-- AI Persona Engine (external) - replace with the complete engine script I will send next -->
+<!-- AI Persona Engine (external) -->
 <script src="ai-persona-engine.js"></script>
 </body>
 </html>
