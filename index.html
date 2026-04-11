@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* ========== FULL ORIGINAL STYLES (RESTORED) ========== */
+    /* ========== FULL ORIGINAL STYLES ========== */
     :root{
       --bg:#ebf1fa; --card:#ffffff; --ink:#1f2633; --muted:#7f8794;
       --blue:#2e9fe8; --blue-dark:#24263d; --green:#4ab54d; --yellow:#f3bf23;
@@ -657,7 +657,7 @@
     const timerBtns = document.querySelectorAll('.timer-btn');
     timerBtns.forEach(btn => btn.onclick = ()=>{ if(!isSubscribed) return; const s = parseInt(btn.dataset.seconds); if(activeTimer) clearTimeout(activeTimer); activeTimer = setTimeout(()=>{ activeTimer=null; }, s*1000); timerBtns.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); });
 
-    // ========== CHAT LOGIC (WITH ROOM-PER-ROOM PERSISTENCE) ==========
+    // ========== CHAT LOGIC (WITH ROOM-PER-ROOM PERSISTENCE & FIXES) ==========
     const ROOM_STORAGE_PREFIX = 'pocketOption_chat_messages_';
     const LEGACY_STORAGE_KEY = 'pocketOption_chat_messages';
     let isHydratingRoom = false;
@@ -693,20 +693,28 @@
           const bubble = row.querySelector('.chat-bubble');
           if (!bubble) return;
           const senderName = bubble.querySelector('.chat-sender-name')?.innerText || (isOutgoing ? 'You' : 'Unknown');
-          // Extract text from bubble (excluding meta and time)
-          const textNodes = Array.from(bubble.childNodes).filter(n => 
-            n.nodeType === Node.TEXT_NODE || 
-            (n.classList && !n.classList.contains('chat-bubble-meta') && !n.classList.contains('chat-bubble-time') && !n.classList.contains('chat-sender-name'))
-          );
-          let text = textNodes.map(n => n.textContent).join('').trim();
+          // Extract text (excluding meta, time, reply preview)
+          const tempDiv = document.createElement('div');
+          const bubbleClone = bubble.cloneNode(true);
+          bubbleClone.querySelectorAll('.chat-bubble-meta, .chat-bubble-time, .reply-preview-bar').forEach(el => el.remove());
+          tempDiv.appendChild(bubbleClone);
+          let text = tempDiv.innerText.trim();
           const time = bubble.querySelector('.chat-bubble-time')?.innerText || '';
           const image = bubble.querySelector('.chat-image')?.src || null;
-          const tickStatus = isOutgoing ? (bubble.querySelector('.chat-ticks')?.classList.contains('seen') ? 'seen' : (bubble.querySelector('.chat-ticks')?.classList.contains('delivered') ? 'delivered' : 'sent')) : null;
+          let tickStatus = null;
+          if (isOutgoing) {
+            const ticks = bubble.querySelector('.chat-ticks');
+            if (ticks) {
+              if (ticks.classList.contains('seen')) tickStatus = 'seen';
+              else if (ticks.classList.contains('delivered')) tickStatus = 'delivered';
+              else tickStatus = 'sent';
+            }
+          }
           messages.push({ side: isOutgoing ? 'outgoing' : 'incoming', senderName, text, time, imageUrl: image, tickStatus });
         });
         const key = roomStorageKey(currentChatRoom);
         localStorage.setItem(key, JSON.stringify(messages));
-        console.log(`Saved ${messages.length} messages to ${key}`);
+        console.log(`✅ Saved ${messages.length} messages to ${key}`);
       } catch (e) {
         console.error('saveMessagesToStorage error', e);
       }
@@ -717,19 +725,19 @@
       let stored = localStorage.getItem(key);
       if (!stored && roomKey === 'general') stored = localStorage.getItem(LEGACY_STORAGE_KEY);
       if (!stored) {
-        console.log(`No stored messages for ${key}`);
+        console.log(`ℹ️ No stored messages for ${key}`);
         return;
       }
       try {
         const messages = JSON.parse(stored);
-        console.log(`Loading ${messages.length} messages from ${key}`);
-        messages.forEach(msg => {
+        console.log(`📥 Loading ${messages.length} messages from ${key}`);
+        for (let msg of messages) {
           if (msg.side === 'outgoing') {
             addMessageToFeed('outgoing', msg.text, msg.time, msg.tickStatus, msg.imageUrl, false);
           } else {
             buildIncomingMessage({ senderName: msg.senderName, text: msg.text, time: msg.time, imageUrl: msg.imageUrl }, false);
           }
-        });
+        }
         if (!localStorage.getItem(key)) localStorage.setItem(key, stored);
       } catch (e) {
         console.warn('Could not load chat history', e);
@@ -740,6 +748,7 @@
     function todayStickerText(){ return `Today • ${new Date().toLocaleDateString('en-GB')}`; }
     function setComposerMode(){ const hasText = chatInput.value.trim().length>0; chatSendBtn.classList.toggle('is-send',hasText); chatSendIconWrap.innerHTML = hasText ? '<i data-lucide="send"></i>' : '<i data-lucide="mic"></i>'; lucide.createIcons(); }
     function buildIncomingAvatar(roomKey){ return roomKey==='support' ? '<div class="chat-avatar-bubble"><div class="brand-mark" style="width:22px;height:16px;"></div></div>' : '<div class="chat-avatar-bubble"><i data-lucide="messages-square"></i></div>'; }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
 
     function buildIncomingMessage(msgData, shouldSave = true){
       const row = document.createElement('div'); row.className = 'chat-msg-row incoming';
@@ -751,13 +760,22 @@
       } else { avatarDiv.textContent = msgData.senderName.charAt(0).toUpperCase(); avatarDiv.style.background='#cbd5e1'; }
       const bubble = document.createElement('div'); bubble.className = 'chat-bubble incoming';
       const nameColor = msgData.senderName==='Trade Result' ? '#2f98e5' : getColorFromString(msgData.senderName);
-      let content = `<div class="chat-sender-name" style="color:${nameColor};">${msgData.senderName}</div>`;
-      if(msgData.replyTo) content += `<div class="reply-preview-bar" style="margin-bottom:8px;background:#f0f4fa;border-left-color:#2f98e5;"><div class="reply-preview-content"><div class="reply-preview-label">Replying to ${msgData.replyTo.senderName}</div><div class="reply-preview-text">${msgData.replyTo.text}</div></div></div>`;
+      let content = `<div class="chat-sender-name" style="color:${nameColor};">${escapeHtml(msgData.senderName)}</div>`;
+      if(msgData.replyTo && msgData.replyTo.senderName && msgData.replyTo.text){
+        content += `<div class="reply-preview-bar" style="margin-bottom:8px;background:#f0f4fa;border-left-color:#2f98e5;">
+                      <div class="reply-preview-content">
+                        <div class="reply-preview-label">Replying to ${escapeHtml(msgData.replyTo.senderName)}</div>
+                        <div class="reply-preview-text">${escapeHtml(msgData.replyTo.text.substring(0, 60))}</div>
+                      </div>
+                      <button class="reply-preview-close" onclick="this.closest('.reply-preview-bar')?.remove()">✕</button>
+                    </div>`;
+      }
       content += msgData.text;
       if(msgData.imageUrl) content += `<img src="${msgData.imageUrl}" class="chat-image" alt="testimonial">`;
       content += `<span class="chat-bubble-time" style="display:block;margin-top:6px;font-size:11px;opacity:.75;">${msgData.time}</span>`;
       bubble.innerHTML = content;
-      row.appendChild(avatarDiv); row.appendChild(bubble); chatMessages.appendChild(row);
+      row.appendChild(avatarDiv); row.appendChild(bubble);
+      chatMessages.appendChild(row);
       chatMessages.scrollTop = chatMessages.scrollHeight;
       if(!isUserAtBottom){ unreadMessages++; updateUnreadPill(); }
       if (shouldSave) saveMessagesToStorage();
@@ -770,12 +788,22 @@
     unreadPill.addEventListener('click', scrollToBottom);
 
     function addMessageToFeed(side, text, time, tickStatus=null, imageUrl=null, shouldSave = true){
-      const row = document.createElement('div'); row.className = `chat-msg-row ${side}`; const bubble = document.createElement('div'); bubble.className = `chat-bubble ${side}`;
-      let content = text; if(imageUrl) content = `<img src="${imageUrl}" class="chat-image">` + (text?`<div style="margin-top:6px;">${text}</div>`:'');
-      if(side==='outgoing'){ bubble.innerHTML = `${content}<span class="chat-bubble-meta"><span class="chat-bubble-time">${time}</span><span class="chat-ticks ${tickStatus||'sent'}">${tickStatus==='seen'?'✓✓':(tickStatus==='delivered'?'✓✓':'✓')}</span></span>`; }
-      else { bubble.innerHTML = `${content}<span class="chat-bubble-time" style="display:block;margin-top:6px;font-size:11px;opacity:.75;">${time}</span>`; }
-      if(side==='incoming'){ row.innerHTML = buildIncomingAvatar(currentChatRoom); row.appendChild(bubble); } else { row.appendChild(bubble); }
-      chatMessages.appendChild(row); if (shouldSave) saveMessagesToStorage();
+      const row = document.createElement('div'); row.className = `chat-msg-row ${side}`;
+      const bubble = document.createElement('div'); bubble.className = `chat-bubble ${side}`;
+      let content = text;
+      if(imageUrl) content = `<img src="${imageUrl}" class="chat-image">` + (text?`<div style="margin-top:6px;">${text}</div>`:'');
+      if(side==='outgoing'){
+        bubble.innerHTML = `${content}<span class="chat-bubble-meta"><span class="chat-bubble-time">${time}</span><span class="chat-ticks ${tickStatus||'sent'}">${tickStatus==='seen'?'✓✓':(tickStatus==='delivered'?'✓✓':'✓')}</span></span>`;
+      } else {
+        bubble.innerHTML = `${content}<span class="chat-bubble-time" style="display:block;margin-top:6px;font-size:11px;opacity:.75;">${time}</span>`;
+      }
+      if(side==='incoming'){
+        const avatar = document.createElement('div'); avatar.className = 'chat-avatar-bubble'; avatar.innerHTML = buildIncomingAvatar(currentChatRoom);
+        row.appendChild(avatar);
+      }
+      row.appendChild(bubble);
+      chatMessages.appendChild(row);
+      if (shouldSave) saveMessagesToStorage();
       return bubble;
     }
 
@@ -822,11 +850,21 @@
     function sendChatMessage(){
       const text = chatInput.value.trim(); if(!text && !pendingImage) return;
       const now = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-      const bubble = addMessageToFeed('outgoing', text, now, 'sent', pendingImage); pendingImage=null; chatInput.placeholder='Message...';
-      chatMessages.scrollTop = chatMessages.scrollHeight; chatInput.value=''; setComposerMode();
+      const bubble = addMessageToFeed('outgoing', text, now, 'sent', pendingImage);
+      
+      // Notify AI script about user message
+      if(window.onUserMessage) {
+        window.onUserMessage({ senderName: 'You', text: text });
+      }
+      
+      pendingImage = null;
+      chatInput.placeholder = 'Message...';
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      chatInput.value = '';
+      setComposerMode();
       const ticks = bubble.querySelector('.chat-ticks');
-      setTimeout(()=>{ ticks.textContent='✓✓'; ticks.classList.add('delivered'); },800);
-      setTimeout(()=>{ ticks.classList.remove('delivered'); ticks.classList.add('seen'); },1800);
+      setTimeout(()=>{ if(ticks) ticks.textContent='✓✓'; ticks?.classList.add('delivered'); },800);
+      setTimeout(()=>{ ticks?.classList.remove('delivered'); ticks?.classList.add('seen'); },1800);
     }
 
     chatGeneralBtn.onclick = ()=> openChatRoom('general');
@@ -877,7 +915,7 @@
     lucide.createIcons();
   })();
 </script>
-<!-- AI Persona Engine (external) - use the v5 script below -->
+<!-- AI Persona Engine (external) - replace with the complete engine script I will send next -->
 <script src="ai-persona-engine.js"></script>
 </body>
 </html>
