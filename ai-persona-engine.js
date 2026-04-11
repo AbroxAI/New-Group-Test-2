@@ -1,47 +1,132 @@
-// ====================== AI PERSONA ENGINE v5.0 (COMPLETE) ======================
-// 450+ realistic personas · 2000+ templates · Typos · Reply chains · Testimonials
-// Join stickers · Autonomous · localStorage persistence · Persona memory · Social dynamics
-// =================================================================================
+// ====================== AI PERSONA ENGINE v6 (Complete) ======================
+// 450+ personas · Realistic avatars · Archetypes · Contextual replies · Clusters · Memory
+// =============================================================================
 
 (function(){
   "use strict";
 
   const CONFIG = {
     BASE_INTERVAL: 8000,
-    BURST_CHANCE: 0.25,
+    BURST_CHANCE: 0.20,
     TRADE_RESULT_INTERVAL: 20000,
-    TRADE_RESULT_CHANCE: 0.4,
-    TESTIMONIAL_CHANCE: 0.15,
-    JOIN_CHANCE: 0.08,
-    MAX_BURST_MESSAGES: 6,
-    ENABLE_LOGGING: true   // set to false in production
+    TRADE_RESULT_CHANCE: 0.35,
+    TESTIMONIAL_CHANCE: 0.12,
+    JOIN_CHANCE: 0.06,
+    MAX_BURST_MESSAGES: 4,
+    ENABLE_LOGGING: true,
+    WATCHER_ACTIVITY_PENALTY: 0.7
   };
 
   const MessageType = {
     QUESTION: "question", RESULT: "result", REACTION: "reaction", ADVICE: "advice",
     HYPE: "hype", GREETING: "greeting", CONFUSED: "confused", FLEX: "flex",
-    COMMUNITY: "community", TESTIMONIAL: "testimonial", JOIN: "join"
+    COMMUNITY: "community", TESTIMONIAL: "testimonial", JOIN: "join",
+    SARCASTIC: "sarcastic", FUNNY: "funny", ANALYTICAL: "analytical"
   };
 
   const conversationFlow = {
-    [MessageType.QUESTION]:   [MessageType.ADVICE, MessageType.REACTION, MessageType.CONFUSED],
+    [MessageType.QUESTION]:   [MessageType.ADVICE, MessageType.REACTION, MessageType.CONFUSED, MessageType.ANALYTICAL],
     [MessageType.ADVICE]:     [MessageType.REACTION, MessageType.RESULT, MessageType.QUESTION],
-    [MessageType.RESULT]:     [MessageType.REACTION, MessageType.HYPE, MessageType.FLEX, MessageType.TESTIMONIAL],
-    [MessageType.REACTION]:   [MessageType.QUESTION, MessageType.RESULT, MessageType.GREETING],
+    [MessageType.RESULT]:     [MessageType.REACTION, MessageType.HYPE, MessageType.FLEX, MessageType.TESTIMONIAL, MessageType.SARCASTIC],
+    [MessageType.REACTION]:   [MessageType.QUESTION, MessageType.RESULT, MessageType.GREETING, MessageType.FUNNY],
     [MessageType.HYPE]:       [MessageType.REACTION, MessageType.RESULT, MessageType.FLEX],
     [MessageType.GREETING]:   [MessageType.QUESTION, MessageType.REACTION, MessageType.COMMUNITY],
     [MessageType.CONFUSED]:   [MessageType.ADVICE, MessageType.QUESTION],
-    [MessageType.FLEX]:       [MessageType.REACTION, MessageType.HYPE, MessageType.TESTIMONIAL],
+    [MessageType.FLEX]:       [MessageType.REACTION, MessageType.HYPE, MessageType.TESTIMONIAL, MessageType.SARCASTIC],
     [MessageType.COMMUNITY]:  [MessageType.REACTION, MessageType.QUESTION, MessageType.GREETING],
-    [MessageType.TESTIMONIAL]: [MessageType.REACTION, MessageType.QUESTION],
-    [MessageType.JOIN]:       [MessageType.GREETING, MessageType.REACTION, MessageType.COMMUNITY]
+    [MessageType.TESTIMONIAL]: [MessageType.REACTION, MessageType.QUESTION, MessageType.HYPE],
+    [MessageType.JOIN]:       [MessageType.GREETING, MessageType.REACTION, MessageType.COMMUNITY],
+    [MessageType.SARCASTIC]:  [MessageType.REACTION, MessageType.FLEX, MessageType.QUESTION],
+    [MessageType.FUNNY]:      [MessageType.REACTION, MessageType.HYPE, MessageType.COMMUNITY],
+    [MessageType.ANALYTICAL]: [MessageType.ADVICE, MessageType.QUESTION, MessageType.REACTION]
   };
 
   const pick = arr => arr[Math.floor(Math.random() * arr.length)];
   const randomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-  const log = (...args) => CONFIG.ENABLE_LOGGING && console.log('[AI Persona]', ...args);
+  const log = (...args) => CONFIG.ENABLE_LOGGING && console.log('[AI]', ...args);
 
-  // ---------- EXPANDED PHRASE BANK (2000+ templates) ----------
+  // ---------- MULTI-SOURCE AVATAR SYSTEM (fixed) ----------
+  const avatarSources = [
+    { type: 'randomuser', url: (name, gender, seed) => `https://randomuser.me/api/portraits/${gender}/${Math.abs(seed) % 100}.jpg`, weight: 80 },
+    { type: 'picsum', url: (name, gender, seed) => `https://picsum.photos/id/${100 + (Math.abs(seed) % 300)}/200/200`, weight: 10 },
+    { type: 'unsplash', url: (name, gender, seed) => `https://source.unsplash.com/featured/200x200?face,portrait`, weight: 5 },
+    { type: 'placeholder', url: null, weight: 5 }
+  ];
+
+  function getWeightedAvatarSource() {
+    const total = avatarSources.reduce((sum, s) => sum + s.weight, 0);
+    let rand = Math.random() * total;
+    for (let src of avatarSources) {
+      if (rand < src.weight) return src;
+      rand -= src.weight;
+    }
+    return avatarSources[0];
+  }
+
+  function getAvatarUrl(name, gender) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = ((hash << 5) - hash) + name.charCodeAt(i);
+      hash |= 0;
+    }
+    const seed = Math.abs(hash);
+    const source = getWeightedAvatarSource();
+    if (source.url) return source.url(name, gender, seed);
+    return null;
+  }
+
+  // ---------- GENDER INFERENCE ----------
+  const maleNames = new Set([
+    "Daniel","Chidi","Olu","Tunde","Emeka","Ifeanyi","Yemi","Bimbo","Segun","Bayo","Obinna","Nnamdi","Uchenna","Chika","Onyeka","Efe","Temi",
+    "Oliver","Harry","George","Jack","Charlie","James","Thomas","William","Henry","Oscar","Leo","Alfie",
+    "Khalid","Omar","Rashid","Hamza","Saeed","Ali","Ahmed","Yousef","Hassan","Tariq","Faisal","Salem","Majid",
+    "Jason","Mike","Chris","David","Kevin","Brian","Matt","Tyler","Justin","Ryan","Brandon","Zach","Josh",
+    "Ravi","Amit","Vikram","Raj","Arjun","Suresh","Manoj","Rahul","Sanjay","Aakash","Rohan","Karthik","Varun",
+    "Lucas","Paulo","Felipe","Rafael","Gustavo","Marcelo","Rodrigo","Thiago","André","Bruno","Diego","Leonardo","Ricardo",
+    "Thabo","Sipho","Mandla","Bongani","Sibusiso","Jabulani","Vusi","Sizwe","Themba","Mpho","Kabelo","Kagiso","Tebogo",
+    "Klaus","Hans","Peter","Thomas","Michael","Andreas","Frank","Markus","Stefan","Jan","Tim","Dirk","Sven",
+    "Budi","Agus","Eko","Hadi","Adi","Joko","Dedi","Rudi","Wawan","Tono","Andi","Bayu","Hendra",
+    "Carlos","Jose","Juan","Luis","Miguel","Francisco","Javier","Ricardo","Fernando","Alejandro","Arturo","Roberto","Sergio"
+  ]);
+  const femaleNames = new Set([
+    "Amara","Ngozi","Folake","Yetunde","Kemi","Chinwe","Adaobi","Ndidi",
+    "Maya","Sophie","Emily","Lucy","Amelia","Grace","Alice","Ella","Lily","Mia","Isla","Poppy","Evie",
+    "Fatima","Aisha","Layla","Noura","Mona","Reem","Sara","Mariam","Zainab","Lina","Huda","Amal",
+    "Jessica","Sarah","Ashley","Brianna","Nicole","Megan","Rachel","Amber","Kayla","Lauren","Taylor","Sam",
+    "Priya","Neha","Anjali","Pooja","Kavya","Deepa","Divya","Sunita","Meera","Isha","Ananya","Swati",
+    "Ana","Mariana","Carla","Juliana","Fernanda","Camila","Beatriz","Larissa","Vanessa","Gabriela","Patricia","Aline",
+    "Lerato","Zinhle","Nandi","Thandi","Nomvula","Precious","Buhle","Lindiwe","Nokuthula","Boitumelo","Palesa","Karabo",
+    "Anna","Julia","Laura","Sarah","Lisa","Stefanie","Nicole","Sabine","Kerstin","Nina","Melanie","Katrin",
+    "Siti","Dewi","Rina","Maya","Putri","Sari","Nia","Yanti","Lina","Rini","Tina","Fitri",
+    "Maria","Guadalupe","Elena","Carmen","Rosa","Alejandra","Veronica","Patricia","Gabriela","Sofia","Daniela","Laura"
+  ]);
+  function getGenderFromName(firstName) {
+    if (maleNames.has(firstName)) return "men";
+    if (femaleNames.has(firstName)) return "women";
+    return firstName.endsWith("a") || firstName.endsWith("e") ? "women" : "men";
+  }
+
+  // ---------- PERSONA ARCHETYPES ----------
+  const archetypes = [
+    { name: "watcher", activityMult: 0.15, traits: ["quiet","observant"], messageTypes: [MessageType.REACTION, MessageType.COMMUNITY], chance: 0.25 },
+    { name: "active", activityMult: 1.0, traits: ["talkative","friendly"], messageTypes: Object.values(MessageType), chance: 0.35 },
+    { name: "leader", activityMult: 0.9, traits: ["confident","authority"], messageTypes: [MessageType.ADVICE, MessageType.FLEX, MessageType.HYPE], chance: 0.10 },
+    { name: "sarcastic", activityMult: 0.7, traits: ["witty","sarcastic"], messageTypes: [MessageType.SARCASTIC, MessageType.REACTION, MessageType.FLEX], chance: 0.10 },
+    { name: "analytical", activityMult: 0.8, traits: ["logical","detailed"], messageTypes: [MessageType.ANALYTICAL, MessageType.ADVICE, MessageType.QUESTION], chance: 0.10 },
+    { name: "funny", activityMult: 0.7, traits: ["humorous","joker"], messageTypes: [MessageType.FUNNY, MessageType.REACTION, MessageType.HYPE], chance: 0.10 }
+  ];
+
+  function assignArchetype() {
+    const total = archetypes.reduce((sum, a) => sum + a.chance, 0);
+    let rand = Math.random() * total;
+    for (let arch of archetypes) {
+      if (rand < arch.chance) return arch;
+      rand -= arch.chance;
+    }
+    return archetypes[1];
+  }
+
+  // ---------- PHRASE BANKS (FULL) ----------
   const globalPhraseBank = {
     question: [
       "how do you enter this trade?", "is this signal safe?", "what timeframe?",
@@ -257,10 +342,27 @@
       "I'm here to soak up all the knowledge.",
       "hope to contribute as I learn.",
       "thanks for the add!"
+    ],
+    sarcastic: [
+      "oh wow, another winner 😏", "sure, that definitely works... not", "easy money they said",
+      "I'm sure this time it's different", "great, another loss, just what I needed",
+      "my stop loss is my best friend", "trading is so relaxing they said",
+      "of course it reversed right after I entered", "classic"
+    ],
+    funny: [
+      "my trading strategy: buy high, sell low 🤡", "I'm not losing, I'm just investing in experience",
+      "my stop loss is my wife's patience", "trading is easy, just buy the dip and watch it dip further",
+      "I'm in a committed relationship with my losses", "profit? never heard of her",
+      "I put the 'fun' in 'funds'", "my account looks like a ski slope 🎿"
+    ],
+    analytical: [
+      "based on the 4H chart, we might see a retracement", "RSI is showing divergence",
+      "support at 1.0850, resistance at 1.0920", "volume confirms the move",
+      "looking at the order flow, smart money is buying", "fib levels suggest a pullback to 0.618",
+      "market structure is bullish above the trendline", "watch for a break of the consolidation"
     ]
   };
 
-  // Expanded regional phrases - FIXED: "United Kingdom" instead of "UK"
   const regionalPhrases = {
     Nigeria: ["how far", "this thing legit?", "make I try am", "abeg", "no wahala", "I dey observe", "na wa", "oya", "chop life", "e choke", "na so", "wetin dey happen?", "I go follow", "e be like say", "no shaking"],
     "United Kingdom": ["cheers", "proper", "mate", "innit", "sorted", "brilliant", "lovely", "fancy that", "spot on", "cracking", "bloody hell", "chuffed", "gobsmacked", "knackered", "taking the piss"],
@@ -274,7 +376,6 @@
     Mexico: ["órale", "ándale", "qué padre", "wey", "neta", "chido", "no manches", "a huevo", "chingón", "padrísimo", "qué onda", "güey", "chale", "ándale pues", "simón"]
   };
 
-  // ---------- REALISTIC NAMES (450 personas) ----------
   const firstNames = {
     Nigeria: ["Daniel","Chidi","Amara","Olu","Tunde","Ngozi","Emeka","Folake","Ifeanyi","Yemi","Bimbo","Segun","Yetunde","Kemi","Bayo","Chinwe","Obinna","Adaobi","Nnamdi","Uchenna","Chika","Onyeka","Ndidi","Efe","Temi"],
     "United Kingdom": ["Maya","Oliver","Sophie","Harry","Emily","George","Lucy","Jack","Amelia","Charlie","Grace","James","Alice","Thomas","Ella","William","Lily","Henry","Mia","Oscar","Isla","Leo","Poppy","Alfie","Evie"],
@@ -314,6 +415,7 @@
     { country:"Mexico", timezone:"America/Mexico_City", type:"intermediate", intent:"community", typing:[900,1700], grammar:"mixed", slang:0.6, activity:"high", online:[8,24] }
   ];
 
+  // ---------- BUILD PERSONAS ----------
   const personas = [];
   let idCounter = 1;
 
@@ -330,17 +432,23 @@
       else if (r < 0.8) displayName = `${firstName} ${lastName.charAt(0)}.`;
       else displayName = `${firstName}${Math.floor(Math.random()*100)}`;
       if (Math.random() < 0.25) displayName += ' ' + pick(['🔥','💸','📈','⭐','🌟','💎','🚀','🎯','🏆']);
-      const hasCustomAvatar = Math.random() < 0.7;
-      const avatarFile = hasCustomAvatar ? `assets/avatars/${displayName.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}.jpg` : null;
+      
+      const gender = getGenderFromName(firstName);
+      const archetype = assignArchetype();
+      const avatarUrl = getAvatarUrl(displayName, gender);
+      
       personas.push({
         id: `p_${idCounter++}`,
         name: displayName,
-        avatar: avatarFile,
+        avatar: avatarUrl,
         country: base.country,
         timezone: base.timezone,
         type: base.type,
         intent: base.intent,
-        personality: base.intent === 'learner' ? ['curious','impatient'] : base.intent === 'authority' ? ['confident','direct'] : ['friendly','talkative'],
+        archetype: archetype.name,
+        activityMult: archetype.activityMult,
+        traits: archetype.traits,
+        allowedTypes: archetype.messageTypes,
         typingSpeed: [base.typing[0]+i*5, base.typing[1]+i*10],
         grammar: base.grammar,
         slangLevel: Math.min(1, base.slang + (Math.random()*0.2-0.1)),
@@ -354,13 +462,15 @@
   personas.forEach(p => {
     const bank = { ...globalPhraseBank };
     if (regionalPhrases[p.country]) {
-      bank.regional = regionalPhrases[p.country];
       bank.greeting = [...bank.greeting, ...regionalPhrases[p.country].slice(0,5)];
       bank.reaction = [...bank.reaction, ...regionalPhrases[p.country].slice(2,7)];
     }
     if (p.intent === 'learner') bank.question = [...bank.question, ...globalPhraseBank.confused.slice(0,10)];
     else if (p.intent === 'flex') { bank.flex = [...bank.flex, ...globalPhraseBank.result.slice(5,15)]; bank.hype = [...bank.hype, ...globalPhraseBank.flex]; }
     else if (p.intent === 'authority') bank.advice = [...bank.advice, ...globalPhraseBank.advice];
+    if (p.archetype === 'sarcastic') bank.sarcastic = globalPhraseBank.sarcastic;
+    if (p.archetype === 'funny') bank.funny = globalPhraseBank.funny;
+    if (p.archetype === 'analytical') bank.analytical = globalPhraseBank.analytical;
     p.messageBank = bank;
   });
 
@@ -370,37 +480,61 @@
   const chatAPI = window.chatAPI || {};
 
   function isPersonaOnline(p){ try{ const h = new Date(new Date().toLocaleString('en-US',{timeZone:p.timezone})).getHours(); return h>=p.onlineHours[0] && h<p.onlineHours[1]; }catch{ return true; } }
-  function getActivePersonas(){ return personas.filter(p=>isPersonaOnline(p)); }
+  function getActivePersonas(){ return personas.filter(p=>isPersonaOnline(p) && (Math.random() < (1 - CONFIG.WATCHER_ACTIVITY_PENALTY * (p.archetype === 'watcher' ? 1 : 0)))); }
   function pickDifferentPersona(){ const active = getActivePersonas(); if(!active.length) return null; let f = active.filter(p=>p.id!==lastPersonaId); if(!f.length) f=active; return pick(f); }
-  function applyTypos(text){ if(Math.random()>0.15) return text; const words = text.split(' '); return words.map(w=>{ if(w.length<3||Math.random()>0.03) return w; const pos=Math.floor(Math.random()*(w.length-1)); const chars=w.split(''); [chars[pos],chars[pos+1]]=[chars[pos+1],chars[pos]]; return chars.join(''); }).join(' '); }
+
+  function applyTypos(text){
+    if(Math.random() > 0.2) return text;
+    const words = text.split(' ');
+    return words.map(w => {
+      if(w.length < 4 || Math.random() > 0.1) return w;
+      const pos = Math.floor(Math.random() * (w.length - 1));
+      const chars = w.split('');
+      [chars[pos], chars[pos+1]] = [chars[pos+1], chars[pos]];
+      return chars.join('');
+    }).join(' ');
+  }
+
   function generateMessage(persona, forcedType=null){
     let type = forcedType;
     if(!type){
-      if(!lastMessageType) type = pick([MessageType.GREETING, MessageType.QUESTION]);
-      else { const possible = conversationFlow[lastMessageType]||Object.values(MessageType); const available = possible.filter(t=>persona.messageBank[t]?.length); type = available.length ? pick(available) : pick(Object.keys(persona.messageBank)); }
+      const allowed = persona.allowedTypes;
+      if(lastMessageType && conversationFlow[lastMessageType]){
+        const possible = conversationFlow[lastMessageType].filter(t => allowed.includes(t) && persona.messageBank[t]?.length);
+        if(possible.length) type = pick(possible);
+      }
+      if(!type) type = pick(allowed.filter(t => persona.messageBank[t]?.length) || [MessageType.GREETING]);
     }
     if(!persona.messageBank[type]?.length) type = pick(Object.keys(persona.messageBank));
     let text = pick(persona.messageBank[type]);
-    if(persona.slangLevel>0.6 && Math.random()>0.5) text = text.replace(/going to/g,'gonna').replace(/want to/g,'wanna');
-    if(persona.grammar==='informal' && Math.random()>0.6) text = text.replace(/you are/g,'you\'re').replace(/I am/g,'I\'m');
-    if(Math.random()>0.4) text += ' ' + pick(persona.intent==='flex'?['🔥','💸','🚀']:(persona.intent==='confused'?['🤔','❓','📘']:['👍','😊','💪']));
+    if(persona.slangLevel > 0.6 && Math.random() > 0.5) text = text.replace(/going to/g,'gonna').replace(/want to/g,'wanna');
+    if(persona.grammar === 'informal' && Math.random() > 0.6) text = text.replace(/you are/g,'you\'re').replace(/I am/g,'I\'m');
+    if(Math.random() > 0.4){
+      if(persona.archetype === 'sarcastic') text += ' 😏';
+      else if(persona.archetype === 'funny') text += ' 😂';
+      else if(persona.archetype === 'analytical') text += ' 📊';
+      else text += ' ' + pick(['👍','😊','💪','🔥']);
+    }
     lastMessageType = type;
     return { text: applyTypos(text), type };
   }
-  function getTypingDelay(p, len){ return Math.min(randomBetween(p.typingSpeed[0], p.typingSpeed[1]) * len, 5000); }
+
+  function getTypingDelay(p, len){ return Math.min(randomBetween(p.typingSpeed[0], p.typingSpeed[1]) * len, 6000); }
   function showTyping(p){ if(chatAPI.showTypingForPersona) chatAPI.showTypingForPersona(p); }
   function hideTyping(){ if(chatAPI.hideTyping) chatAPI.hideTyping(); }
-  function shouldAttachImage(p, type){ if(type===MessageType.TESTIMONIAL) return Math.random()<0.4; if(type===MessageType.RESULT && p.intent==='flex') return Math.random()<0.3; return false; }
-  function getRandomTestimonialImage(){ return `assets/testimonials/testimonial_${Math.floor(Math.random()*20)+1}.jpg`; }
-
-  // ROOM GUARD: only send messages if General Chat is active
-  function isGeneralChatActive() {
-    return window.__activeChatRoom === 'general' && chatAPI.isChatRoomActive?.();
+  function shouldAttachImage(p, type){ 
+    if(type === MessageType.TESTIMONIAL) return Math.random() < 0.4;
+    if(type === MessageType.RESULT && p.intent === 'flex') return Math.random() < 0.3;
+    return false;
   }
+  function getRandomTestimonialImage(){ return `https://picsum.photos/id/${Math.floor(Math.random()*200)}/200/200`; }
+
+  function isGeneralChatActive() { return window.__activeChatRoom === 'general' && chatAPI.isChatRoomActive?.(); }
 
   function sendPersonaMessage(persona, replyTo=null){
     if (!isGeneralChatActive()) return;
-    const isTestimonial = Math.random()<CONFIG.TESTIMONIAL_CHANCE && persona.messageBank[MessageType.TESTIMONIAL];
+    if(persona.archetype === 'watcher' && Math.random() > 0.15) return;
+    const isTestimonial = Math.random() < CONFIG.TESTIMONIAL_CHANCE && persona.messageBank[MessageType.TESTIMONIAL];
     let { text, type } = generateMessage(persona, isTestimonial ? MessageType.TESTIMONIAL : null);
     const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     let imageUrl = shouldAttachImage(persona, type) ? getRandomTestimonialImage() : null;
@@ -411,36 +545,66 @@
       if(el) { recentMessages.push({ id: persona.id+'_'+Date.now(), personaId: persona.id, senderName: persona.name, text, element: el }); if(recentMessages.length>30) recentMessages.shift(); }
     }
     lastPersonaId = persona.id;
-    log(`${persona.name}: ${text}`);
+    log(`${persona.name} (${persona.archetype}): ${text}`);
   }
 
   function simulateJoin(){
     if (!isGeneralChatActive()) return;
     const country = pick(Object.keys(firstNames));
     const firstName = pick(firstNames[country]), lastName = pick(lastNames[country]);
-    const name = `${firstName} ${lastName}`; const avatar = `assets/avatars/${name.replace(/\s+/g,'_')}.jpg`;
+    const name = `${firstName} ${lastName}`;
+    const gender = getGenderFromName(firstName);
+    const avatar = getAvatarUrl(name, gender);
     const joinText = pick(globalPhraseBank.join).replace('[country]', country);
     const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     if(chatAPI.addSystemMessage) chatAPI.addSystemMessage({ text: `🎉 ${name} ${joinText}`, time: timeStr });
     setTimeout(()=>{ if(!simulationActive) return; showTyping({name, avatar}); setTimeout(()=>{ hideTyping(); if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName:name, senderAvatar:avatar, text: pick(["thanks for the warm welcome!","excited to be here","hello everyone!"]), time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}), personaId:'join_'+Date.now() }); },1500); },3000);
   }
 
-  // ENHANCED REPLY FUNCTION with contextual reactions and reply preview
+  let activeCluster = null;
   function maybeSendReply(){
-    if(!recentMessages.length || Math.random() > 0.28) return false;
+    if(!recentMessages.length || Math.random() > 0.3) return false;
     
-    // Pick a random recent message from a different persona
+    if(activeCluster && activeCluster.count < 4 && Math.random() < 0.6){
+      const target = recentMessages[recentMessages.length-1];
+      if(target && target.text.toLowerCase().includes(activeCluster.topic)){
+        const persona = pickDifferentPersona();
+        if(persona && !activeCluster.participants.includes(persona.id)){
+          activeCluster.participants.push(persona.id);
+          activeCluster.count++;
+          const replyText = pick(["same here", "agreed", "what he said", "facts", "this", "exactly", "👆"]);
+          const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+          if(chatAPI.addIncomingMessage){
+            chatAPI.addIncomingMessage({
+              senderName: persona.name,
+              senderAvatar: persona.avatar,
+              text: replyText,
+              time: timeStr,
+              personaId: persona.id,
+              replyTo: { senderName: target.senderName, text: target.text.substring(0,50) }
+            });
+          }
+          lastPersonaId = persona.id;
+          return true;
+        }
+      } else { activeCluster = null; }
+    }
+    
     const candidates = recentMessages.filter(m => m.personaId !== lastPersonaId);
     if(candidates.length === 0) return false;
-    
     const target = pick(candidates);
     const persona = pickDifferentPersona();
     if(!persona) return false;
     
-    // Contextual replies based on target message content
+    if(Math.random() < 0.2 && target.text.length > 20 && !activeCluster){
+      const keywords = target.text.split(' ').filter(w => w.length > 5);
+      if(keywords.length){
+        activeCluster = { topic: keywords[0].toLowerCase(), participants: [target.personaId, persona.id], count: 2 };
+      }
+    }
+    
     let replyText = "";
     const lowerText = target.text.toLowerCase();
-    
     if(lowerText.includes("win") || lowerText.includes("profit") || lowerText.includes("%") || lowerText.includes("tp")){
       replyText = pick(["nice win! 🔥", "congrats on that profit", "that's what I'm talking about", "let's gooo", "🚀🚀", "well played"]);
     } else if(lowerText.includes("loss") || lowerText.includes("lost") || lowerText.includes("stop") || lowerText.includes("missed")){
@@ -449,13 +613,13 @@
       replyText = pick(["good question", "I was wondering the same", "anyone have an answer?", "would like to know too", "curious about that as well"]);
     } else if(lowerText.includes("signal") || lowerText.includes("entry") || lowerText.includes("trade")){
       replyText = pick(["following this 📈", "already in", "looks solid", "agree with the setup", "I'm watching this too"]);
+    } else if(lowerText.includes("testimonial") || lowerText.includes("proof") || lowerText.includes("withdrawal")){
+      replyText = pick(["nice! keep it up", "love to see it", "inspiring", "motivating", "this is the way"]);
     } else {
       replyText = pick(["exactly!", "well said", "facts 💯", "this 👆", "couldn't agree more", "🔥🔥", "for real", "no cap"]);
     }
     
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    
+    const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     if(chatAPI.addIncomingMessage){
       chatAPI.addIncomingMessage({
         senderName: persona.name,
@@ -463,30 +627,43 @@
         text: replyText,
         time: timeStr,
         personaId: persona.id,
-        replyTo: { 
-          senderName: target.senderName, 
-          text: target.text.substring(0, 50) 
-        }
+        replyTo: { senderName: target.senderName, text: target.text.substring(0,50) }
       });
       log(`🤖 ${persona.name} replied to ${target.senderName}: "${replyText}"`);
     }
-    
     lastPersonaId = persona.id;
     return true;
   }
 
   function triggerBurst(){
-    const count = randomBetween(3, CONFIG.MAX_BURST_MESSAGES); let sent = 0;
-    const int = setInterval(()=>{ if(sent>=count){ clearInterval(int); return; } const p = pickDifferentPersona(); if(!p) return; const {text} = generateMessage(p); showTyping(p); setTimeout(()=>{ hideTyping(); sendPersonaMessage(p); }, getTypingDelay(p, text.length)); sent++; }, randomBetween(600,1500));
+    const count = randomBetween(2, CONFIG.MAX_BURST_MESSAGES);
+    let sent = 0;
+    const int = setInterval(()=>{
+      if(sent>=count){ clearInterval(int); return; }
+      const p = pickDifferentPersona();
+      if(p && !(p.archetype === 'watcher' && Math.random() > 0.2)){
+        const {text} = generateMessage(p);
+        showTyping(p);
+        setTimeout(()=>{ hideTyping(); sendPersonaMessage(p); }, getTypingDelay(p, text.length));
+        sent++;
+      } else { sent++; }
+    }, randomBetween(800, 2000));
     activeTimeouts.push(int);
   }
 
   function simulationTick(){
     if(!simulationActive || !isGeneralChatActive()) return;
-    if(Math.random()<CONFIG.JOIN_CHANCE) simulateJoin();
+    if(Math.random() < CONFIG.JOIN_CHANCE) simulateJoin();
     if(maybeSendReply()){ activeTimeouts.push(setTimeout(simulationTick, CONFIG.BASE_INTERVAL+randomBetween(-2000,5000))); return; }
-    if(Math.random()<CONFIG.BURST_CHANCE) triggerBurst();
-    else { const p = pickDifferentPersona(); if(p){ const {text} = generateMessage(p); showTyping(p); activeTimeouts.push(setTimeout(()=>{ hideTyping(); sendPersonaMessage(p); }, getTypingDelay(p, text.length)+randomBetween(1000,4000))); } }
+    if(Math.random() < CONFIG.BURST_CHANCE) triggerBurst();
+    else {
+      const p = pickDifferentPersona();
+      if(p && !(p.archetype === 'watcher' && Math.random() > 0.2)){
+        const {text} = generateMessage(p);
+        showTyping(p);
+        activeTimeouts.push(setTimeout(()=>{ hideTyping(); sendPersonaMessage(p); }, getTypingDelay(p, text.length)+randomBetween(1000,4000)));
+      }
+    }
     activeTimeouts.push(setTimeout(simulationTick, CONFIG.BASE_INTERVAL+randomBetween(-2000,5000)));
   }
 
@@ -494,23 +671,30 @@
     if (!isGeneralChatActive()) return;
     const pair = pick(["EUR/USD","GBP/USD","USD/JPY","AUD/USD","EUR/GBP","USD/CHF","NZD/USD","US30","GER40"]);
     const percent = pick(["+92%","+87%","+78%","+95%","+83%","+91%","+76%","+88%","+84%","+79%","+96%","+81%","+73%","+89%"]);
-    if(Math.random()>0.5){ const p = pickDifferentPersona(); if(p){ const text = pick([`just closed ${pair} at ${percent} 🎯`,`${pair} hit TP ${percent}`,`easy ${percent} on ${pair}`]); const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName: p.name, senderAvatar: p.avatar, text, time: timeStr, personaId: p.id, messageType: MessageType.RESULT }); lastPersonaId = p.id; lastMessageType = MessageType.RESULT; return; } }
-    const text = `📊 Signal Result: ${pair} ${percent} ✅`; const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); if(chatAPI.addSystemMessage) chatAPI.addSystemMessage({ text, time: timeStr }); else if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName:"Trade Result", senderAvatar:"📈", text, time: timeStr, personaId:'system' });
+    if(Math.random() > 0.5){
+      const p = pickDifferentPersona();
+      if(p && !(p.archetype === 'watcher' && Math.random() > 0.2)){
+        const text = pick([`just closed ${pair} at ${percent} 🎯`,`${pair} hit TP ${percent}`,`easy ${percent} on ${pair}`]);
+        const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName: p.name, senderAvatar: p.avatar, text, time: timeStr, personaId: p.id, messageType: MessageType.RESULT });
+        lastPersonaId = p.id; lastMessageType = MessageType.RESULT;
+        return;
+      }
+    }
+    const text = `📊 Signal Result: ${pair} ${percent} ✅`;
+    const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    if(chatAPI.addSystemMessage) chatAPI.addSystemMessage({ text, time: timeStr });
+    else if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName:"Trade Result", senderAvatar:"📈", text, time: timeStr, personaId:'system' });
   }
 
   function startSimulation(){ if(simulationActive) return; simulationActive=true; lastMessageType=null; lastPersonaId=null; log('🚀 Simulation started'); simulationTick(); }
   function stopSimulation(){ simulationActive=false; activeTimeouts.forEach(clearTimeout); activeTimeouts=[]; hideTyping(); log('🛑 Simulation stopped'); }
   function startTradeResultInjection(){ if(tradeResultInterval) clearInterval(tradeResultInterval); tradeResultInterval = setInterval(()=>{ if(!simulationActive||!isGeneralChatActive()) return; if(Math.random()<CONFIG.TRADE_RESULT_CHANCE) injectTradeResult(); }, CONFIG.TRADE_RESULT_INTERVAL); }
 
-  // ROOM-STATE SYNC
   function syncSimulationState() {
     const active = isGeneralChatActive();
-    if (active && !simulationActive) {
-      startSimulation();
-      startTradeResultInjection();
-    } else if (!active && simulationActive) {
-      stopSimulation();
-    }
+    if (active && !simulationActive) { startSimulation(); startTradeResultInjection(); }
+    else if (!active && simulationActive) { stopSimulation(); }
   }
 
   window.addEventListener('chat-room-changed', syncSimulationState);
@@ -522,61 +706,16 @@
   // ====================== V4: MEMORY & PERSISTENCE ======================
   const STORAGE_KEY = "ai_chat_history_v4";
   const PERSONA_KEY = "ai_persona_state_v4";
-
-  // ---------- STORAGE ----------
-  const load = key => {
-    try { return JSON.parse(localStorage.getItem(key)) || {}; }
-    catch { return {}; }
-  };
+  const load = key => { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; } };
   const save = (key, data) => { localStorage.setItem(key, JSON.stringify(data)); };
-
   const personaState = load(PERSONA_KEY);
   const chatHistory = load(STORAGE_KEY) || [];
-
-  // Init state for all personas
-  personas.forEach(p => {
-    if(!personaState[p.id]){
-      personaState[p.id] = {
-        wins: 0,
-        losses: 0,
-        streak: 0,
-        confidence: Math.random(),
-        lastMessages: []
-      };
-    }
-  });
-
-  // ---------- TOP TRADERS (random 10) ----------
-  const topTraderIds = personas
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 10)
-    .map(p => p.id);
+  personas.forEach(p => { if(!personaState[p.id]) personaState[p.id] = { wins:0, losses:0, streak:0, confidence:Math.random(), lastMessages:[] }; });
+  const topTraderIds = personas.sort(()=>Math.random()-0.5).slice(0,10).map(p=>p.id);
   const isTopTrader = id => topTraderIds.includes(id);
-
-  // ---------- SENTIMENT ----------
   let sentiment = "neutral";
-  function updateSentiment(){
-    let wins = 0, losses = 0;
-    Object.values(personaState).forEach(s => {
-      wins += s.wins;
-      losses += s.losses;
-    });
-    if (wins > losses * 1.5) sentiment = "hype";
-    else if (losses > wins) sentiment = "fear";
-    else sentiment = "neutral";
-  }
-
-  // ---------- ANTI-REPETITION ----------
-  function filterRepeat(state, text){
-    if(state.lastMessages.includes(text)){
-      text += " " + ["again","fr","🔥","no cap"][Math.floor(Math.random()*4)];
-    }
-    state.lastMessages.push(text);
-    if(state.lastMessages.length > 6) state.lastMessages.shift();
-    return text;
-  }
-
-  // Patch chatAPI.addIncomingMessage
+  function updateSentiment(){ let wins=0,losses=0; Object.values(personaState).forEach(s=>{ wins+=s.wins; losses+=s.losses; }); sentiment = wins>losses*1.5?"hype":losses>wins?"fear":"neutral"; }
+  function filterRepeat(state, text){ if(state.lastMessages.includes(text)) text += " " + ["again","fr","🔥","no cap"][Math.floor(Math.random()*4)]; state.lastMessages.push(text); if(state.lastMessages.length>6) state.lastMessages.shift(); return text; }
   const originalAddIncoming = chatAPI.addIncomingMessage;
   if(originalAddIncoming){
     chatAPI.addIncomingMessage = function(data){
@@ -595,140 +734,23 @@
       return res;
     };
   }
-
-  // Patch injectTradeResult to update persona stats
   const originalInject = injectTradeResult;
   window.AIPersonaSimulator.injectTradeResult = function(){
     originalInject();
     const p = personas[Math.floor(Math.random()*personas.length)];
     const state = personaState[p.id];
     const win = Math.random() > 0.35;
-    if(win){
-      state.wins++;
-      state.streak++;
-      state.confidence += 0.05;
-    } else {
-      state.losses++;
-      state.streak = 0;
-      state.confidence -= 0.05;
-    }
+    if(win){ state.wins++; state.streak++; state.confidence += 0.05; }
+    else { state.losses++; state.streak = 0; state.confidence -= 0.05; }
     updateSentiment();
     save(PERSONA_KEY, personaState);
   };
 
-  // ====================== V5: SOCIAL DYNAMICS ======================
-  (function(){
-    const leaders = personas.sort(() => Math.random() - 0.5).slice(0, 5);
-    const leaderIdsSet = new Set(leaders.map(p => p.id));
-
-    const fomoLines = [
-      "you guys are missing out 🔥",
-      "this was called early",
-      "only few people caught this",
-      "don't sleep on this signal",
-      "this group different fr",
-      "if you're not in you're missing money",
-      "this was easy money honestly",
-      "I almost missed this one 😅"
-    ];
-    const panicLines = [
-      "market tricky today 🤔",
-      "anyone else confused?",
-      "I think I entered wrong",
-      "this one risky o",
-      "I'm sitting out this one",
-      "not clear setup tbh"
-    ];
-    const copyLines = [
-      "I just follow his trades now",
-      "anything he calls I enter",
-      "I trust this guy signals",
-      "been copying him all week",
-      "he rarely misses 🔥"
-    ];
-
-    function randomPersona(){ return personas[Math.floor(Math.random()*personas.length)]; }
-
-    function leaderMessage(){
-      const p = leaders[Math.floor(Math.random()*leaders.length)];
-      const text = [
-        "TP HIT 🎯",
-        "called it earlier",
-        "clean setup as expected",
-        "price respected level perfectly",
-        "another precise entry"
-      ][Math.floor(Math.random()*5)];
-      if(!isGeneralChatActive()) return;
-      chatAPI.addIncomingMessage?.({
-        senderName: p.name,
-        senderAvatar: p.avatar,
-        text: text + " 📈",
-        time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
-        personaId: p.id
-      });
-    }
-
-    function copyReaction(){
-      const p = randomPersona();
-      const text = copyLines[Math.floor(Math.random()*copyLines.length)];
-      if(!isGeneralChatActive()) return;
-      chatAPI.addIncomingMessage?.({
-        senderName: p.name,
-        senderAvatar: p.avatar,
-        text,
-        time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
-        personaId: p.id
-      });
-    }
-
-    function fomoPush(){
-      const p = randomPersona();
-      const text = fomoLines[Math.floor(Math.random()*fomoLines.length)];
-      if(!isGeneralChatActive()) return;
-      chatAPI.addIncomingMessage?.({
-        senderName: p.name,
-        senderAvatar: p.avatar,
-        text,
-        time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
-        personaId: p.id
-      });
-    }
-
-    function panicPush(){
-      const p = randomPersona();
-      const text = panicLines[Math.floor(Math.random()*panicLines.length)];
-      if(!isGeneralChatActive()) return;
-      chatAPI.addIncomingMessage?.({
-        senderName: p.name,
-        senderAvatar: p.avatar,
-        text,
-        time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
-        personaId: p.id
-      });
-    }
-
-    // Viral loop (every 12 seconds)
-    setInterval(() => {
-      if(!isGeneralChatActive()) return;
-      if(Math.random() < 0.25) leaderMessage();
-      if(Math.random() < 0.3) copyReaction();
-      if(Math.random() < 0.35) fomoPush();
-      if(Math.random() < 0.2) panicPush();
-    }, 12000);
-  })();
-
-  // ====================== USER MESSAGE LISTENER (for reply chains) ======================
   window.onUserMessage = function(msg) {
-    recentMessages.push({ 
-      id: 'user_' + Date.now(), 
-      personaId: 'user', 
-      senderName: msg.senderName, 
-      text: msg.text, 
-      element: null 
-    });
+    recentMessages.push({ id: 'user_'+Date.now(), personaId:'user', senderName:msg.senderName, text:msg.text, element:null });
     if(recentMessages.length > 30) recentMessages.shift();
-    log(`User message added to recentMessages: ${msg.text}`);
+    log(`User message added: ${msg.text}`);
   };
 
-  log(`🤖 AI Persona Engine v5.0 loaded with ${personas.length} personas.`);
+  log(`🤖 AI Persona Engine v6 loaded with ${personas.length} personas (randomuser 80%, picsum 10%, unsplash 5%, text 5%).`);
 })();
