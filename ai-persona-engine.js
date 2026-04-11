@@ -1,7 +1,8 @@
-// ====================== AI PERSONA ENGINE v3.3 (Production) ======================
+// ====================== AI PERSONA ENGINE v5.0 (Full Integration) ======================
 // 450+ realistic personas · 2000+ templates · Typos · Reply chains · Testimonials
-// Join stickers · Autonomous · localStorage persistence ready
-// =================================================================================
+// Join stickers · Autonomous · localStorage persistence · Persona memory · Social dynamics
+// =======================================================================================
+
 (function(){
   "use strict";
 
@@ -259,10 +260,10 @@
     ]
   };
 
-  // Expanded regional phrases
+  // Expanded regional phrases - FIXED: "United Kingdom" instead of "UK"
   const regionalPhrases = {
     Nigeria: ["how far", "this thing legit?", "make I try am", "abeg", "no wahala", "I dey observe", "na wa", "oya", "chop life", "e choke", "na so", "wetin dey happen?", "I go follow", "e be like say", "no shaking"],
-    UK: ["cheers", "proper", "mate", "innit", "sorted", "brilliant", "lovely", "fancy that", "spot on", "cracking", "bloody hell", "chuffed", "gobsmacked", "knackered", "taking the piss"],
+    "United Kingdom": ["cheers", "proper", "mate", "innit", "sorted", "brilliant", "lovely", "fancy that", "spot on", "cracking", "bloody hell", "chuffed", "gobsmacked", "knackered", "taking the piss"],
     UAE: ["inshallah", "mashallah", "yalla", "habibi", "wallah", "akeed", "tamam", "maafi mushkila", "shukran", "afwan", "alhamdulillah", "insha'Allah", "sabah al khair", "masa al khair", "khalas"],
     US: ["y'all", "dope", "lit", "bet", "for real", "no cap", "facts", "sheesh", "vibe", "lowkey", "hella", "finna", "ion know", "deadass", "say less"],
     India: ["namaste", "bhai", "accha", "theek hai", "arre", "yaar", "sahi hai", "kya baat", "badhiya", "ekdum", "kya scene hai?", "mast", "jugaad", "chalo", "fatafat"],
@@ -276,7 +277,7 @@
   // ---------- REALISTIC NAMES (450 personas) ----------
   const firstNames = {
     Nigeria: ["Daniel","Chidi","Amara","Olu","Tunde","Ngozi","Emeka","Folake","Ifeanyi","Yemi","Bimbo","Segun","Yetunde","Kemi","Bayo","Chinwe","Obinna","Adaobi","Nnamdi","Uchenna","Chika","Onyeka","Ndidi","Efe","Temi"],
-    UK: ["Maya","Oliver","Sophie","Harry","Emily","George","Lucy","Jack","Amelia","Charlie","Grace","James","Alice","Thomas","Ella","William","Lily","Henry","Mia","Oscar","Isla","Leo","Poppy","Alfie","Evie"],
+    "United Kingdom": ["Maya","Oliver","Sophie","Harry","Emily","George","Lucy","Jack","Amelia","Charlie","Grace","James","Alice","Thomas","Ella","William","Lily","Henry","Mia","Oscar","Isla","Leo","Poppy","Alfie","Evie"],
     UAE: ["Khalid","Fatima","Omar","Aisha","Rashid","Layla","Hamza","Noura","Saeed","Mona","Ali","Reem","Ahmed","Sara","Yousef","Mariam","Hassan","Zainab","Tariq","Lina","Faisal","Huda","Salem","Amal","Majid"],
     US: ["Jason","Jessica","Mike","Sarah","Chris","Ashley","David","Brianna","Kevin","Nicole","Brian","Megan","Matt","Rachel","Tyler","Justin","Amber","Ryan","Kayla","Brandon","Lauren","Zach","Taylor","Josh","Sam"],
     India: ["Ravi","Priya","Amit","Neha","Vikram","Anjali","Raj","Pooja","Arjun","Kavya","Suresh","Deepa","Manoj","Divya","Rahul","Sunita","Sanjay","Meera","Aakash","Isha","Rohan","Ananya","Karthik","Swati","Varun"],
@@ -289,7 +290,7 @@
 
   const lastNames = {
     Nigeria: ["Okonkwo","Adebayo","Okafor","Eze","Chukwu","Adeyemi","Obi","Nwachukwu","Ogunleye","Balogun"],
-    UK: ["Smith","Jones","Taylor","Brown","Williams","Davies","Evans","Thomas","Johnson","Roberts"],
+    "United Kingdom": ["Smith","Jones","Taylor","Brown","Williams","Davies","Evans","Thomas","Johnson","Roberts"],
     UAE: ["Al-Mansouri","Al-Hashimi","Al-Mazrouei","Al-Qasimi","Al-Nuaimi","Al-Zaabi","Al-Kaabi","Al-Dhaheri","Al-Sharqi","Al-Ketbi"],
     US: ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez"],
     India: ["Patel","Singh","Kumar","Sharma","Gupta","Reddy","Joshi","Verma","Mehta","Nair"],
@@ -304,10 +305,10 @@
     { country:"Nigeria", timezone:"Africa/Lagos", type:"beginner", intent:"learner", typing:[900,1800], grammar:"informal", slang:0.7, activity:"high", online:[7,23] },
     { country:"United Kingdom", timezone:"Europe/London", type:"intermediate", intent:"engaged", typing:[1200,2400], grammar:"clean", slang:0.3, activity:"medium", online:[8,22] },
     { country:"UAE", timezone:"Asia/Dubai", type:"advanced", intent:"authority", typing:[600,1200], grammar:"clean", slang:0.1, activity:"low", online:[9,23] },
-    { country:"United States", timezone:"America/New_York", type:"intermediate", intent:"flex", typing:[700,1500], grammar:"casual", slang:0.8, activity:"high", online:[6,24] },
+    { country:"US", timezone:"America/New_York", type:"intermediate", intent:"flex", typing:[700,1500], grammar:"casual", slang:0.8, activity:"high", online:[6,24] },
     { country:"India", timezone:"Asia/Kolkata", type:"beginner", intent:"confused", typing:[1500,3000], grammar:"formal", slang:0.1, activity:"medium", online:[9,23] },
     { country:"Brazil", timezone:"America/Sao_Paulo", type:"intermediate", intent:"community", typing:[1000,2200], grammar:"mixed", slang:0.5, activity:"high", online:[8,24] },
-    { country:"South Africa", timezone:"Africa/Johannesburg", type:"intermediate", intent:"engaged", typing:[1100,2000], grammar:"clean", slang:0.4, activity:"medium", online:[7,22] },
+    { country:"SouthAfrica", timezone:"Africa/Johannesburg", type:"intermediate", intent:"engaged", typing:[1100,2000], grammar:"clean", slang:0.4, activity:"medium", online:[7,22] },
     { country:"Germany", timezone:"Europe/Berlin", type:"advanced", intent:"authority", typing:[800,1400], grammar:"clean", slang:0.1, activity:"low", online:[8,23] },
     { country:"Indonesia", timezone:"Asia/Jakarta", type:"beginner", intent:"learner", typing:[1000,1800], grammar:"informal", slang:0.5, activity:"high", online:[8,22] },
     { country:"Mexico", timezone:"America/Mexico_City", type:"intermediate", intent:"community", typing:[900,1700], grammar:"mixed", slang:0.6, activity:"high", online:[8,24] }
@@ -392,7 +393,13 @@
   function shouldAttachImage(p, type){ if(type===MessageType.TESTIMONIAL) return Math.random()<0.4; if(type===MessageType.RESULT && p.intent==='flex') return Math.random()<0.3; return false; }
   function getRandomTestimonialImage(){ return `assets/testimonials/testimonial_${Math.floor(Math.random()*20)+1}.jpg`; }
 
+  // ROOM GUARD: only send messages if General Chat is active
+  function isGeneralChatActive() {
+    return window.__activeChatRoom === 'general' && chatAPI.isChatRoomActive?.();
+  }
+
   function sendPersonaMessage(persona, replyTo=null){
+    if (!isGeneralChatActive()) return;
     const isTestimonial = Math.random()<CONFIG.TESTIMONIAL_CHANCE && persona.messageBank[MessageType.TESTIMONIAL];
     let { text, type } = generateMessage(persona, isTestimonial ? MessageType.TESTIMONIAL : null);
     const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
@@ -408,6 +415,7 @@
   }
 
   function simulateJoin(){
+    if (!isGeneralChatActive()) return;
     const country = pick(Object.keys(firstNames));
     const firstName = pick(firstNames[country]), lastName = pick(lastNames[country]);
     const name = `${firstName} ${lastName}`; const avatar = `assets/avatars/${name.replace(/\s+/g,'_')}.jpg`;
@@ -434,10 +442,6 @@
     activeTimeouts.push(int);
   }
 
-  function isGeneralChatActive(){
-    return chatAPI.isChatRoomActive?.() && chatAPI.getCurrentRoom?.() === 'general';
-  }
-
   function simulationTick(){
     if(!simulationActive || !isGeneralChatActive()) return;
     if(Math.random()<CONFIG.JOIN_CHANCE) simulateJoin();
@@ -448,6 +452,7 @@
   }
 
   function injectTradeResult(){
+    if (!isGeneralChatActive()) return;
     const pair = pick(["EUR/USD","GBP/USD","USD/JPY","AUD/USD","EUR/GBP","USD/CHF","NZD/USD","US30","GER40"]);
     const percent = pick(["+92%","+87%","+78%","+95%","+83%","+91%","+76%","+88%","+84%","+79%","+96%","+81%","+73%","+89%"]);
     if(Math.random()>0.5){ const p = pickDifferentPersona(); if(p){ const text = pick([`just closed ${pair} at ${percent} 🎯`,`${pair} hit TP ${percent}`,`easy ${percent} on ${pair}`]); const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName: p.name, senderAvatar: p.avatar, text, time: timeStr, personaId: p.id, messageType: MessageType.RESULT }); lastPersonaId = p.id; lastMessageType = MessageType.RESULT; return; } }
@@ -457,9 +462,228 @@
   function startSimulation(){ if(simulationActive) return; simulationActive=true; lastMessageType=null; lastPersonaId=null; log('🚀 Simulation started'); simulationTick(); }
   function stopSimulation(){ simulationActive=false; activeTimeouts.forEach(clearTimeout); activeTimeouts=[]; hideTyping(); log('🛑 Simulation stopped'); }
   function startTradeResultInjection(){ if(tradeResultInterval) clearInterval(tradeResultInterval); tradeResultInterval = setInterval(()=>{ if(!simulationActive||!isGeneralChatActive()) return; if(Math.random()<CONFIG.TRADE_RESULT_CHANCE) injectTradeResult(); }, CONFIG.TRADE_RESULT_INTERVAL); }
-  function monitor(){ const active = isGeneralChatActive(); if(active && !simulationActive){ startSimulation(); startTradeResultInjection(); } else if(!active && simulationActive) stopSimulation(); }
-  setInterval(monitor, 1000);
+
+  // ROOM-STATE SYNC
+  function syncSimulationState() {
+    const active = isGeneralChatActive();
+    if (active && !simulationActive) {
+      startSimulation();
+      startTradeResultInjection();
+    } else if (!active && simulationActive) {
+      stopSimulation();
+    }
+  }
+
+  window.addEventListener('chat-room-changed', syncSimulationState);
+  setInterval(syncSimulationState, 1000);
+  syncSimulationState();
 
   window.AIPersonaSimulator = { isActive: ()=>simulationActive, getPersonas: ()=>personas };
-  log(`🤖 AI Persona Engine v3.3 loaded with ${personas.length} personas.`);
+
+  // ====================== V4: MEMORY & PERSISTENCE ======================
+  const STORAGE_KEY = "ai_chat_history_v4";
+  const PERSONA_KEY = "ai_persona_state_v4";
+
+  // ---------- STORAGE ----------
+  const load = key => {
+    try { return JSON.parse(localStorage.getItem(key)) || {}; }
+    catch { return {}; }
+  };
+  const save = (key, data) => { localStorage.setItem(key, JSON.stringify(data)); };
+
+  const personaState = load(PERSONA_KEY);
+  const chatHistory = load(STORAGE_KEY) || [];
+
+  // Init state for all personas
+  personas.forEach(p => {
+    if(!personaState[p.id]){
+      personaState[p.id] = {
+        wins: 0,
+        losses: 0,
+        streak: 0,
+        confidence: Math.random(),
+        lastMessages: []
+      };
+    }
+  });
+
+  // ---------- TOP TRADERS (random 10) ----------
+  const topTraderIds = personas
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 10)
+    .map(p => p.id);
+  const isTopTrader = id => topTraderIds.includes(id);
+
+  // ---------- SENTIMENT ----------
+  let sentiment = "neutral";
+  function updateSentiment(){
+    let wins = 0, losses = 0;
+    Object.values(personaState).forEach(s => {
+      wins += s.wins;
+      losses += s.losses;
+    });
+    if (wins > losses * 1.5) sentiment = "hype";
+    else if (losses > wins) sentiment = "fear";
+    else sentiment = "neutral";
+  }
+
+  // ---------- ANTI-REPETITION ----------
+  function filterRepeat(state, text){
+    if(state.lastMessages.includes(text)){
+      text += " " + ["again","fr","🔥","no cap"][Math.floor(Math.random()*4)];
+    }
+    state.lastMessages.push(text);
+    if(state.lastMessages.length > 6) state.lastMessages.shift();
+    return text;
+  }
+
+  // Patch chatAPI.addIncomingMessage
+  const originalAddIncoming = chatAPI.addIncomingMessage;
+  if(originalAddIncoming){
+    chatAPI.addIncomingMessage = function(data){
+      const state = personaState[data.personaId];
+      if(state){
+        data.text = filterRepeat(state, data.text);
+        if(state.streak >= 3) data.text += " 🔥 streak";
+        if(state.losses > state.wins && Math.random() < 0.3) data.text += " 😤";
+        if(isTopTrader(data.personaId) && Math.random() < 0.25) data.text += " 📊";
+      }
+      const res = originalAddIncoming.call(this, data);
+      chatHistory.push(data);
+      if(chatHistory.length > 120) chatHistory.shift();
+      save(STORAGE_KEY, chatHistory);
+      save(PERSONA_KEY, personaState);
+      return res;
+    };
+  }
+
+  // Patch injectTradeResult to update persona stats
+  const originalInject = injectTradeResult;
+  window.AIPersonaSimulator.injectTradeResult = function(){
+    originalInject();
+    const p = personas[Math.floor(Math.random()*personas.length)];
+    const state = personaState[p.id];
+    const win = Math.random() > 0.35;
+    if(win){
+      state.wins++;
+      state.streak++;
+      state.confidence += 0.05;
+    } else {
+      state.losses++;
+      state.streak = 0;
+      state.confidence -= 0.05;
+    }
+    updateSentiment();
+    save(PERSONA_KEY, personaState);
+  };
+
+  // Restore chat history on load
+  window.addEventListener("load", () => {
+    if(chatAPI.addIncomingMessage){
+      chatHistory.forEach(msg => chatAPI.addIncomingMessage(msg));
+    }
+  });
+
+  // ====================== V5: SOCIAL DYNAMICS ======================
+  (function(){
+    const leaders = personas.sort(() => Math.random() - 0.5).slice(0, 5);
+    const leaderIdsSet = new Set(leaders.map(p => p.id));
+
+    const fomoLines = [
+      "you guys are missing out 🔥",
+      "this was called early",
+      "only few people caught this",
+      "don't sleep on this signal",
+      "this group different fr",
+      "if you're not in you're missing money",
+      "this was easy money honestly",
+      "I almost missed this one 😅"
+    ];
+    const panicLines = [
+      "market tricky today 🤔",
+      "anyone else confused?",
+      "I think I entered wrong",
+      "this one risky o",
+      "I'm sitting out this one",
+      "not clear setup tbh"
+    ];
+    const copyLines = [
+      "I just follow his trades now",
+      "anything he calls I enter",
+      "I trust this guy signals",
+      "been copying him all week",
+      "he rarely misses 🔥"
+    ];
+
+    function randomPersona(){ return personas[Math.floor(Math.random()*personas.length)]; }
+
+    function leaderMessage(){
+      const p = leaders[Math.floor(Math.random()*leaders.length)];
+      const text = [
+        "TP HIT 🎯",
+        "called it earlier",
+        "clean setup as expected",
+        "price respected level perfectly",
+        "another precise entry"
+      ][Math.floor(Math.random()*5)];
+      if(!isGeneralChatActive()) return;
+      chatAPI.addIncomingMessage?.({
+        senderName: p.name,
+        senderAvatar: p.avatar,
+        text: text + " 📈",
+        time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
+        personaId: p.id
+      });
+    }
+
+    function copyReaction(){
+      const p = randomPersona();
+      const text = copyLines[Math.floor(Math.random()*copyLines.length)];
+      if(!isGeneralChatActive()) return;
+      chatAPI.addIncomingMessage?.({
+        senderName: p.name,
+        senderAvatar: p.avatar,
+        text,
+        time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
+        personaId: p.id
+      });
+    }
+
+    function fomoPush(){
+      const p = randomPersona();
+      const text = fomoLines[Math.floor(Math.random()*fomoLines.length)];
+      if(!isGeneralChatActive()) return;
+      chatAPI.addIncomingMessage?.({
+        senderName: p.name,
+        senderAvatar: p.avatar,
+        text,
+        time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
+        personaId: p.id
+      });
+    }
+
+    function panicPush(){
+      const p = randomPersona();
+      const text = panicLines[Math.floor(Math.random()*panicLines.length)];
+      if(!isGeneralChatActive()) return;
+      chatAPI.addIncomingMessage?.({
+        senderName: p.name,
+        senderAvatar: p.avatar,
+        text,
+        time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
+        personaId: p.id
+      });
+    }
+
+    // Viral loop (every 12 seconds)
+    setInterval(() => {
+      if(!isGeneralChatActive()) return;
+      if(Math.random() < 0.25) leaderMessage();
+      if(Math.random() < 0.3) copyReaction();
+      if(Math.random() < 0.35) fomoPush();
+      if(Math.random() < 0.2) panicPush();
+    }, 12000);
+  })();
+
+  log(`🤖 AI Persona Engine v5.0 loaded with ${personas.length} personas.`);
 })();
