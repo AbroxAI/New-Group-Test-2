@@ -1,5 +1,6 @@
 // ====================== AI PERSONA ENGINE v6 (Complete) ======================
-// 450+ personas · Realistic avatars · Archetypes · Contextual replies · Clusters · Memory
+// 450+ personas · Randomuser (70%) + Picsum (15%) + DiceBear (10%) + Fallback (5%)
+// Archetypes · Contextual replies · Clusters · Memory · Persistence
 // =============================================================================
 
 (function(){
@@ -45,11 +46,32 @@
   const randomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
   const log = (...args) => CONFIG.ENABLE_LOGGING && console.log('[AI]', ...args);
 
-  // ---------- MULTI-SOURCE AVATAR SYSTEM (fixed) ----------
+  // ---------- MULTI-SOURCE AVATAR SYSTEM ----------
+  // picsum random image categories: nature, cars, bitcoin, flowers, abstract
+  const picsumCategories = [
+    'nature', 'transport', 'technology', 'flowers', 'abstract', 'city', 'animals'
+  ];
+  
   const avatarSources = [
-    { type: 'randomuser', url: (name, gender, seed) => `https://randomuser.me/api/portraits/${gender}/${Math.abs(seed) % 100}.jpg`, weight: 80 },
-    { type: 'picsum', url: (name, gender, seed) => `https://picsum.photos/id/${100 + (Math.abs(seed) % 300)}/200/200`, weight: 10 },
-    { type: 'unsplash', url: (name, gender, seed) => `https://source.unsplash.com/featured/200x200?face,portrait`, weight: 5 },
+    { 
+      type: 'randomuser', 
+      url: (name, gender, seed) => `https://randomuser.me/api/portraits/${gender}/${Math.abs(seed) % 100}.jpg`, 
+      weight: 70 
+    },
+    { 
+      type: 'picsum', 
+      url: (name, gender, seed) => {
+        // deterministic seed for picsum ID (1-1000 range, different categories)
+        const id = 1 + (Math.abs(seed) % 1000);
+        return `https://picsum.photos/id/${id}/200/200`;
+      }, 
+      weight: 15 
+    },
+    { 
+      type: 'dicebear', 
+      url: (name, gender, seed) => `https://api.dicebear.com/7.x/avataaas/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4`, 
+      weight: 10 
+    },
     { type: 'placeholder', url: null, weight: 5 }
   ];
 
@@ -72,7 +94,7 @@
     const seed = Math.abs(hash);
     const source = getWeightedAvatarSource();
     if (source.url) return source.url(name, gender, seed);
-    return null;
+    return null; // fallback to text avatar in HTML
   }
 
   // ---------- GENDER INFERENCE ----------
@@ -126,7 +148,7 @@
     return archetypes[1];
   }
 
-  // ---------- PHRASE BANKS (FULL) ----------
+  // ---------- FULL PHRASE BANKS ----------
   const globalPhraseBank = {
     question: [
       "how do you enter this trade?", "is this signal safe?", "what timeframe?",
@@ -746,11 +768,12 @@
     save(PERSONA_KEY, personaState);
   };
 
+  // ====================== USER MESSAGE LISTENER ======================
   window.onUserMessage = function(msg) {
     recentMessages.push({ id: 'user_'+Date.now(), personaId:'user', senderName:msg.senderName, text:msg.text, element:null });
     if(recentMessages.length > 30) recentMessages.shift();
     log(`User message added: ${msg.text}`);
   };
 
-  log(`🤖 AI Persona Engine v6 loaded with ${personas.length} personas (randomuser 80%, picsum 10%, unsplash 5%, text 5%).`);
+  log(`🤖 AI Persona Engine v6 loaded with ${personas.length} personas (randomuser 70%, picsum 15%, dicebear 10%, text 5%).`);
 })();
