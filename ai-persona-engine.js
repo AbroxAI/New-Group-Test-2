@@ -434,8 +434,12 @@
     activeTimeouts.push(int);
   }
 
+  function isGeneralChatActive(){
+    return chatAPI.isChatRoomActive?.() && chatAPI.getCurrentRoom?.() === 'general';
+  }
+
   function simulationTick(){
-    if(!simulationActive || !chatAPI.isChatRoomActive?.()) return;
+    if(!simulationActive || !isGeneralChatActive()) return;
     if(Math.random()<CONFIG.JOIN_CHANCE) simulateJoin();
     if(maybeSendReply()){ activeTimeouts.push(setTimeout(simulationTick, CONFIG.BASE_INTERVAL+randomBetween(-2000,5000))); return; }
     if(Math.random()<CONFIG.BURST_CHANCE) triggerBurst();
@@ -452,8 +456,8 @@
 
   function startSimulation(){ if(simulationActive) return; simulationActive=true; lastMessageType=null; lastPersonaId=null; log('🚀 Simulation started'); simulationTick(); }
   function stopSimulation(){ simulationActive=false; activeTimeouts.forEach(clearTimeout); activeTimeouts=[]; hideTyping(); log('🛑 Simulation stopped'); }
-  function startTradeResultInjection(){ if(tradeResultInterval) clearInterval(tradeResultInterval); tradeResultInterval = setInterval(()=>{ if(!simulationActive||!chatAPI.isChatRoomActive?.()) return; if(Math.random()<CONFIG.TRADE_RESULT_CHANCE) injectTradeResult(); }, CONFIG.TRADE_RESULT_INTERVAL); }
-  function monitor(){ const active = chatAPI.isChatRoomActive?.()||false; if(active && !simulationActive){ startSimulation(); startTradeResultInjection(); } else if(!active && simulationActive) stopSimulation(); }
+  function startTradeResultInjection(){ if(tradeResultInterval) clearInterval(tradeResultInterval); tradeResultInterval = setInterval(()=>{ if(!simulationActive||!isGeneralChatActive()) return; if(Math.random()<CONFIG.TRADE_RESULT_CHANCE) injectTradeResult(); }, CONFIG.TRADE_RESULT_INTERVAL); }
+  function monitor(){ const active = isGeneralChatActive(); if(active && !simulationActive){ startSimulation(); startTradeResultInjection(); } else if(!active && simulationActive) stopSimulation(); }
   setInterval(monitor, 1000);
 
   window.AIPersonaSimulator = { isActive: ()=>simulationActive, getPersonas: ()=>personas };
