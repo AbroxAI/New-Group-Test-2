@@ -682,28 +682,47 @@
 
     function saveMessagesToStorage() {
       if (isHydratingRoom) return;
-      const messages = [];
-      document.querySelectorAll('.chat-msg-row').forEach(row => {
-        const isOutgoing = row.classList.contains('outgoing');
-        const bubble = row.querySelector('.chat-bubble');
-        if (!bubble) return;
-        const senderName = bubble.querySelector('.chat-sender-name')?.innerText || (isOutgoing ? 'You' : 'Unknown');
-        const text = Array.from(bubble.childNodes).filter(n => n.nodeType === Node.TEXT_NODE || (n.classList && !n.classList.contains('chat-bubble-time') && !n.classList.contains('chat-sender-name'))).map(n => n.textContent).join('').trim();
-        const time = bubble.querySelector('.chat-bubble-time')?.innerText || '';
-        const image = bubble.querySelector('.chat-image')?.src || null;
-        const tickStatus = isOutgoing ? (bubble.querySelector('.chat-ticks')?.classList.contains('seen') ? 'seen' : (bubble.querySelector('.chat-ticks')?.classList.contains('delivered') ? 'delivered' : 'sent')) : null;
-        messages.push({ side: isOutgoing ? 'outgoing' : 'incoming', senderName, text, time, imageUrl: image, tickStatus });
-      });
-      localStorage.setItem(roomStorageKey(currentChatRoom), JSON.stringify(messages));
+      if (!currentChatRoom) {
+        console.warn('saveMessagesToStorage: no currentChatRoom');
+        return;
+      }
+      try {
+        const messages = [];
+        document.querySelectorAll('#chatMessages .chat-msg-row').forEach(row => {
+          const isOutgoing = row.classList.contains('outgoing');
+          const bubble = row.querySelector('.chat-bubble');
+          if (!bubble) return;
+          const senderName = bubble.querySelector('.chat-sender-name')?.innerText || (isOutgoing ? 'You' : 'Unknown');
+          // Extract text from bubble (excluding meta and time)
+          const textNodes = Array.from(bubble.childNodes).filter(n => 
+            n.nodeType === Node.TEXT_NODE || 
+            (n.classList && !n.classList.contains('chat-bubble-meta') && !n.classList.contains('chat-bubble-time') && !n.classList.contains('chat-sender-name'))
+          );
+          let text = textNodes.map(n => n.textContent).join('').trim();
+          const time = bubble.querySelector('.chat-bubble-time')?.innerText || '';
+          const image = bubble.querySelector('.chat-image')?.src || null;
+          const tickStatus = isOutgoing ? (bubble.querySelector('.chat-ticks')?.classList.contains('seen') ? 'seen' : (bubble.querySelector('.chat-ticks')?.classList.contains('delivered') ? 'delivered' : 'sent')) : null;
+          messages.push({ side: isOutgoing ? 'outgoing' : 'incoming', senderName, text, time, imageUrl: image, tickStatus });
+        });
+        const key = roomStorageKey(currentChatRoom);
+        localStorage.setItem(key, JSON.stringify(messages));
+        console.log(`Saved ${messages.length} messages to ${key}`);
+      } catch (e) {
+        console.error('saveMessagesToStorage error', e);
+      }
     }
 
     function loadMessagesFromStorage(roomKey = currentChatRoom) {
       const key = roomStorageKey(roomKey);
       let stored = localStorage.getItem(key);
       if (!stored && roomKey === 'general') stored = localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (!stored) return;
+      if (!stored) {
+        console.log(`No stored messages for ${key}`);
+        return;
+      }
       try {
         const messages = JSON.parse(stored);
+        console.log(`Loading ${messages.length} messages from ${key}`);
         messages.forEach(msg => {
           if (msg.side === 'outgoing') {
             addMessageToFeed('outgoing', msg.text, msg.time, msg.tickStatus, msg.imageUrl, false);
@@ -858,7 +877,7 @@
     lucide.createIcons();
   })();
 </script>
-<!-- AI Persona Engine (external) will be replaced with combined script -->
+<!-- AI Persona Engine (external) - use the v5 script below -->
 <script src="ai-persona-engine.js"></script>
 </body>
 </html>
