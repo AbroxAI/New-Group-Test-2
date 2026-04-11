@@ -1,6 +1,6 @@
 // ====================== AI PERSONA ENGINE v6 (Complete) ======================
-// 450+ personas · Randomuser (70%) + Picsum (15%) + DiceBear (10%) + Fallback (5%)
-// Archetypes · Contextual replies · Clusters · Memory · Persistence
+// 450+ personas · Realistic avatars · Archetypes · Contextual replies · Clusters · Memory
+// Local testimonial images (20) with duplicate avoidance · Reply preview support
 // =============================================================================
 
 (function(){
@@ -47,31 +47,10 @@
   const log = (...args) => CONFIG.ENABLE_LOGGING && console.log('[AI]', ...args);
 
   // ---------- MULTI-SOURCE AVATAR SYSTEM ----------
-  // picsum random image categories: nature, cars, bitcoin, flowers, abstract
-  const picsumCategories = [
-    'nature', 'transport', 'technology', 'flowers', 'abstract', 'city', 'animals'
-  ];
-  
   const avatarSources = [
-    { 
-      type: 'randomuser', 
-      url: (name, gender, seed) => `https://randomuser.me/api/portraits/${gender}/${Math.abs(seed) % 100}.jpg`, 
-      weight: 70 
-    },
-    { 
-      type: 'picsum', 
-      url: (name, gender, seed) => {
-        // deterministic seed for picsum ID (1-1000 range, different categories)
-        const id = 1 + (Math.abs(seed) % 1000);
-        return `https://picsum.photos/id/${id}/200/200`;
-      }, 
-      weight: 15 
-    },
-    { 
-      type: 'dicebear', 
-      url: (name, gender, seed) => `https://api.dicebear.com/7.x/avataaas/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4`, 
-      weight: 10 
-    },
+    { type: 'randomuser', url: (name, gender, seed) => `https://randomuser.me/api/portraits/${gender}/${Math.abs(seed) % 100}.jpg`, weight: 80 },
+    { type: 'picsum', url: (name, gender, seed) => `https://picsum.photos/id/${100 + (Math.abs(seed) % 300)}/200/200`, weight: 10 },
+    { type: 'unsplash', url: (name, gender, seed) => `https://source.unsplash.com/featured/200x200?face,portrait`, weight: 5 },
     { type: 'placeholder', url: null, weight: 5 }
   ];
 
@@ -94,7 +73,7 @@
     const seed = Math.abs(hash);
     const source = getWeightedAvatarSource();
     if (source.url) return source.url(name, gender, seed);
-    return null; // fallback to text avatar in HTML
+    return null;
   }
 
   // ---------- GENDER INFERENCE ----------
@@ -147,6 +126,42 @@
     }
     return archetypes[1];
   }
+
+  // ---------- LOCAL TESTIMONIAL IMAGES (with duplicate avoidance) ----------
+  const TOTAL_TESTIMONIALS = 20;
+  let usedTestimonialIndices = [];
+  let testimonialRotation = [];
+
+  function initTestimonialRotation() {
+    const indices = Array.from({ length: TOTAL_TESTIMONIALS }, (_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    testimonialRotation = indices;
+    usedTestimonialIndices = [];
+  }
+
+  function getNextTestimonialImage() {
+    if (testimonialRotation.length === 0 || usedTestimonialIndices.length >= TOTAL_TESTIMONIALS) {
+      initTestimonialRotation();
+    }
+    let nextIndex = null;
+    for (let idx of testimonialRotation) {
+      if (!usedTestimonialIndices.includes(idx)) {
+        nextIndex = idx;
+        break;
+      }
+    }
+    if (nextIndex === null) {
+      initTestimonialRotation();
+      nextIndex = testimonialRotation[0];
+    }
+    usedTestimonialIndices.push(nextIndex);
+    return `assets/testimonials/testimonial_${nextIndex + 1}.jpg`;
+  }
+
+  initTestimonialRotation();
 
   // ---------- FULL PHRASE BANKS ----------
   const globalPhraseBank = {
@@ -549,7 +564,7 @@
     if(type === MessageType.RESULT && p.intent === 'flex') return Math.random() < 0.3;
     return false;
   }
-  function getRandomTestimonialImage(){ return `https://picsum.photos/id/${Math.floor(Math.random()*200)}/200/200`; }
+  function getRandomTestimonialImage(){ return getNextTestimonialImage(); }
 
   function isGeneralChatActive() { return window.__activeChatRoom === 'general' && chatAPI.isChatRoomActive?.(); }
 
@@ -768,12 +783,11 @@
     save(PERSONA_KEY, personaState);
   };
 
-  // ====================== USER MESSAGE LISTENER ======================
   window.onUserMessage = function(msg) {
     recentMessages.push({ id: 'user_'+Date.now(), personaId:'user', senderName:msg.senderName, text:msg.text, element:null });
     if(recentMessages.length > 30) recentMessages.shift();
     log(`User message added: ${msg.text}`);
   };
 
-  log(`🤖 AI Persona Engine v6 loaded with ${personas.length} personas (randomuser 70%, picsum 15%, dicebear 10%, text 5%).`);
+  log(`🤖 AI Persona Engine v6 loaded with ${personas.length} personas (randomuser 80%, picsum 10%, unsplash 5%, text 5%). Local testimonial images (${TOTAL_TESTIMONIALS}) with duplicate avoidance.`);
 })();
