@@ -760,12 +760,24 @@
       return bubble;
     }
 
+    // ROOM STATE FIX: global variable and event dispatch
     function openChatRoom(roomKey){
-      currentChatRoom = roomKey; const room = chatRooms[roomKey];
-      chatRoomShell.classList.add('is-open'); appContainer.classList.add('chat-open'); document.body.style.overflow='hidden';
-      replyingToMessage=null; replyPreviewBar.style.display='none'; unreadMessages=0; updateUnreadPill();
-      chatRoomName.textContent = room.name; chatRoomStatus.textContent = room.status;
-      chatRoomStatus.classList.remove('live','muted'); chatRoomStatus.classList.add(room.statusClass);
+      currentChatRoom = roomKey;
+      window.__activeChatRoom = roomKey;
+      window.dispatchEvent(new CustomEvent('chat-room-changed', { detail: { roomKey } }));
+
+      const room = chatRooms[roomKey];
+      chatRoomShell.classList.add('is-open');
+      appContainer.classList.add('chat-open');
+      document.body.style.overflow = 'hidden';
+      replyingToMessage = null;
+      replyPreviewBar.style.display = 'none';
+      unreadMessages = 0;
+      updateUnreadPill();
+      chatRoomName.textContent = room.name;
+      chatRoomStatus.textContent = room.status;
+      chatRoomStatus.classList.remove('live','muted');
+      chatRoomStatus.classList.add(room.statusClass);
       chatMessages.innerHTML = `<div class="chat-date-sticker">${todayStickerText()}</div>`;
       isHydratingRoom = true;
       try {
@@ -775,10 +787,19 @@
         isHydratingRoom = false;
       }
       chatMessages.scrollTop = chatMessages.scrollHeight;
-      chatInput.value=''; setComposerMode();
+      chatInput.value='';
+      setComposerMode();
       lucide.createIcons();
     }
-    function closeChatRoom(){ chatRoomShell.classList.remove('is-open'); appContainer.classList.remove('chat-open'); document.body.style.overflow=''; chatInput.value=''; setComposerMode(); }
+
+    function closeChatRoom(){ 
+      chatRoomShell.classList.remove('is-open'); 
+      appContainer.classList.remove('chat-open'); 
+      document.body.style.overflow = ''; 
+      chatInput.value=''; 
+      setComposerMode(); 
+    }
+
     function sendChatMessage(){
       const text = chatInput.value.trim(); if(!text && !pendingImage) return;
       const now = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
@@ -788,6 +809,7 @@
       setTimeout(()=>{ ticks.textContent='✓✓'; ticks.classList.add('delivered'); },800);
       setTimeout(()=>{ ticks.classList.remove('delivered'); ticks.classList.add('seen'); },1800);
     }
+
     chatGeneralBtn.onclick = ()=> openChatRoom('general');
     chatSupportBtn.onclick = ()=> openChatRoom('support');
     chatBackBtn.onclick = closeChatRoom;
@@ -797,7 +819,7 @@
     galleryBtn.onclick = ()=> imageUploadInput.click();
     imageUploadInput.onchange = e=>{ const file = e.target.files[0]; if(file){ const reader = new FileReader(); reader.onload = ev=>{ pendingImage = ev.target.result; chatInput.placeholder='Add caption (optional)'; }; reader.readAsDataURL(file); } };
 
-    // CHAT API BRIDGE
+    // CHAT API BRIDGE (with fixed getCurrentRoom)
     window.chatAPI = {
       showTypingForPersona: (persona) => {
         document.getElementById('aiTypingIndicator')?.remove();
@@ -818,7 +840,7 @@
         saveMessagesToStorage();
       },
       isChatRoomActive: () => chatRoomShell.classList.contains('is-open'),
-      getCurrentRoom: () => currentChatRoom
+      getCurrentRoom: () => window.__activeChatRoom || currentChatRoom
     };
 
     // ========== PAGE NAVIGATION ==========
@@ -836,7 +858,7 @@
     lucide.createIcons();
   })();
 </script>
-<!-- AI Persona Engine (external) -->
+<!-- AI Persona Engine (external) will be replaced with combined script -->
 <script src="ai-persona-engine.js"></script>
 </body>
 </html>
