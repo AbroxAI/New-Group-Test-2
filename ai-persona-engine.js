@@ -1,4 +1,4 @@
-// ====================== AI PERSONA ENGINE v7.0 (FORCED AI-TO-AI REPLIES) ======================
+// ====================== AI PERSONA ENGINE v7.2 (Full – Fixed forced replies) ======================
 // 450+ personas · Realistic avatars · Archetypes · 100% reply chance · Always uses reply preview
 // Local testimonial images (20) with duplicate avoidance · Full expanded phrase banks
 // =============================================================================================
@@ -164,7 +164,7 @@
 
   initTestimonialRotation();
 
-  // ---------- FULL PHRASE BANKS (all original phrases) ----------
+  // ---------- FULL PHRASE BANKS ----------
   const globalPhraseBank = {
     question: [
       "how do you enter this trade?", "is this signal safe?", "what timeframe?",
@@ -625,7 +625,7 @@
     log(`${persona.name} (${persona.archetype}): ${text}`);
   }
 
-  // ========== FORCED REPLY LOGIC ==========
+  // ========== CORRECTED FORCED REPLY LOGIC (no early return) ==========
   function forceReplyToLastAIMessage() {
     if(!simulationActive || !isGeneralChatActive()) return;
     
@@ -633,9 +633,7 @@
     const lastAIMessage = [...recentMessages].reverse().find(m => m.personaId !== 'user');
     if(!lastAIMessage) return;
     
-    // Don't reply to self
-    if(lastAIMessage.personaId === lastPersonaId) return;
-    
+    // pickDifferentPersona will automatically exclude the original sender
     const persona = pickDifferentPersona();
     if(!persona) return;
     
@@ -676,7 +674,6 @@
   // Override sendPersonaMessage to trigger a forced reply after sending
   const sendPersonaMessage = function(persona, replyTo=null) {
     sendPersonaMessageOriginal(persona, replyTo);
-    // After a delay (simulate thinking), force a reply to the message just sent
     setTimeout(() => {
       forceReplyToLastAIMessage();
     }, randomBetween(2000, 4000));
@@ -840,5 +837,5 @@
     log(`User message added: ${msg.text}`);
   };
 
-  log(`🤖 AI Persona Engine v7.0 loaded with ${personas.length} personas. Forced AI-to-AI replies (100% chance). Reply preview bar always used. Chat seeded with initial AI messages.`);
+  log(`🤖 AI Persona Engine v7.2 loaded with ${personas.length} personas. Forced AI-to-AI replies (100% chance). Reply preview bar always used. Chat seeded with initial AI messages.`);
 })();
