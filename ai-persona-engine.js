@@ -1,7 +1,7 @@
-// ====================== AI PERSONA ENGINE v6.5 (Fixed AI-to-AI Replies) ======================
-// 450+ personas · Realistic avatars · Archetypes · AI prioritised reply previews
-// Local testimonial images (20) with duplicate avoidance · Full expanded phrase banks
-// ============================================================================================
+// ====================== AI PERSONA ENGINE v6.6 (Final – AI only replies to AI) ======================
+// 450+ personas · Realistic avatars · Archetypes · AI-to-AI reply previews only (never to user)
+// Local testimonial images (20) with duplicate avoidance · Full expanded phrase banks · Chat seeding
+// ====================================================================================================
 
 (function(){
   "use strict";
@@ -16,7 +16,7 @@
     MAX_BURST_MESSAGES: 5,
     ENABLE_LOGGING: true,
     WATCHER_ACTIVITY_PENALTY: 0.7,
-    REPLY_CHANCE: 0.60   // increased to 60% for lively AI-to-AI chat
+    REPLY_CHANCE: 0.65   // high chance for AI-to-AI replies
   };
 
   const MessageType = {
@@ -47,7 +47,7 @@
   const randomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
   const log = (...args) => CONFIG.ENABLE_LOGGING && console.log('[AI]', ...args);
 
-  // ---------- MULTI-SOURCE AVATAR SYSTEM ----------
+  // ---------- MULTI-SOURCE AVATAR SYSTEM (unchanged) ----------
   const avatarSources = [
     { type: 'randomuser', url: (name, gender, seed) => `https://randomuser.me/api/portraits/${gender}/${Math.abs(seed) % 100}.jpg`, weight: 80 },
     { type: 'picsum', url: (name, gender, seed) => `https://picsum.photos/id/${100 + (Math.abs(seed) % 300)}/200/200`, weight: 10 },
@@ -77,7 +77,7 @@
     return null;
   }
 
-  // ---------- GENDER INFERENCE ----------
+  // ---------- GENDER INFERENCE (unchanged) ----------
   const maleNames = new Set([
     "Daniel","Chidi","Olu","Tunde","Emeka","Ifeanyi","Yemi","Bimbo","Segun","Bayo","Obinna","Nnamdi","Uchenna","Chika","Onyeka","Efe","Temi",
     "Oliver","Harry","George","Jack","Charlie","James","Thomas","William","Henry","Oscar","Leo","Alfie",
@@ -108,7 +108,7 @@
     return firstName.endsWith("a") || firstName.endsWith("e") ? "women" : "men";
   }
 
-  // ---------- PERSONA ARCHETYPES ----------
+  // ---------- PERSONA ARCHETYPES (unchanged) ----------
   const archetypes = [
     { name: "watcher", activityMult: 0.15, traits: ["quiet","observant"], messageTypes: [MessageType.REACTION, MessageType.COMMUNITY], chance: 0.25 },
     { name: "active", activityMult: 1.0, traits: ["talkative","friendly"], messageTypes: Object.values(MessageType), chance: 0.35 },
@@ -164,7 +164,7 @@
 
   initTestimonialRotation();
 
-  // ---------- EXPANDED PHRASE BANKS (full – same as v6.4) ----------
+  // ---------- FULL PHRASE BANKS (same as your v6.5 – all included) ----------
   const globalPhraseBank = {
     question: [
       "how do you enter this trade?", "is this signal safe?", "what timeframe?",
@@ -639,21 +639,15 @@
 
   let activeCluster = null;
 
-  // ========== FIXED: AI prioritises replying to other AI ==========
+  // ========== AI-ONLY REPLY FUNCTION (never replies to user) ==========
   function maybeSendReply(){
     if(!recentMessages.length || Math.random() > CONFIG.REPLY_CHANCE) return false;
     
-    // First, try to find messages from other AI personas (not user, not self)
+    // Only consider messages from other AI personas (never user, never self)
     let candidates = recentMessages.filter(m => m.personaId !== lastPersonaId && m.personaId !== 'user');
-    
-    // If no AI messages, fall back to user messages
-    if(candidates.length === 0) {
-      candidates = recentMessages.filter(m => m.personaId !== lastPersonaId);
-    }
-    
     if(candidates.length === 0) return false;
     
-    // Score candidates (priority for questions, testimonials, results)
+    // Score candidates (questions, testimonials, results get higher score)
     const scored = candidates.map(msg => {
       let score = 1;
       const lower = msg.text.toLowerCase();
@@ -672,9 +666,7 @@
     const persona = pickDifferentPersona();
     if(!persona) return false;
     
-    const isTargetUser = (target.personaId === 'user');
-    
-    // Contextual reply text
+    // Contextual reply text (same as before)
     let replyText = "";
     const lowerText = target.text.toLowerCase();
     if(lowerText.includes("win") || lowerText.includes("profit") || lowerText.includes("%") || lowerText.includes("tp")){
@@ -693,23 +685,20 @@
     
     const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     
+    // ALWAYS use reply preview for AI-to-AI (target is always AI here)
     const msgData = {
       senderName: persona.name,
       senderAvatar: persona.avatar,
       text: replyText,
       time: timeStr,
-      personaId: persona.id
-    };
-    // Add reply preview ONLY if target is another AI (not user)
-    if(!isTargetUser) {
-      msgData.replyTo = { 
+      personaId: persona.id,
+      replyTo: { 
         senderName: target.senderName, 
         text: target.text.substring(0, 50) 
-      };
-      log(`🤖 ${persona.name} replied to AI ${target.senderName} with preview: "${replyText}"`);
-    } else {
-      log(`🤖 ${persona.name} replied to user ${target.senderName} without preview: "${replyText}"`);
-    }
+      }
+    };
+    log(`🤖 ${persona.name} replied to AI ${target.senderName} with preview: "${replyText}"`);
+    
     if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage(msgData);
     
     lastPersonaId = persona.id;
@@ -772,6 +761,36 @@
   function stopSimulation(){ simulationActive=false; activeTimeouts.forEach(clearTimeout); activeTimeouts=[]; hideTyping(); log('🛑 Simulation stopped'); }
   function startTradeResultInjection(){ if(tradeResultInterval) clearInterval(tradeResultInterval); tradeResultInterval = setInterval(()=>{ if(!simulationActive||!isGeneralChatActive()) return; if(Math.random()<CONFIG.TRADE_RESULT_CHANCE) injectTradeResult(); }, CONFIG.TRADE_RESULT_INTERVAL); }
 
+  // ========== CHAT SEEDING: inject 3 initial AI messages when chat opens ==========
+  // Override startSimulation to also seed the chat
+  const originalStartSimulation = startSimulation;
+  startSimulation = function() {
+    if(simulationActive) return;
+    originalStartSimulation();
+    // Seed the chat with 3 AI messages after 2 seconds (so welcome message is there)
+    setTimeout(() => {
+      if(simulationActive && isGeneralChatActive()) {
+        let count = 0;
+        const interval = setInterval(() => {
+          if(count >= 3 || !simulationActive) {
+            clearInterval(interval);
+            return;
+          }
+          const p = pickDifferentPersona();
+          if(p) {
+            const {text} = generateMessage(p);
+            showTyping(p);
+            setTimeout(() => {
+              hideTyping();
+              sendPersonaMessage(p);
+            }, getTypingDelay(p, text.length));
+          }
+          count++;
+        }, 2500);
+      }
+    }, 2000);
+  };
+
   function syncSimulationState() {
     const active = isGeneralChatActive();
     if (active && !simulationActive) { startSimulation(); startTradeResultInjection(); }
@@ -784,7 +803,7 @@
 
   window.AIPersonaSimulator = { isActive: ()=>simulationActive, getPersonas: ()=>personas };
 
-  // ====================== V4: MEMORY & PERSISTENCE ======================
+  // ====================== V4: MEMORY & PERSISTENCE (unchanged) ======================
   const STORAGE_KEY = "ai_chat_history_v4";
   const PERSONA_KEY = "ai_persona_state_v4";
   const load = key => { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; } };
@@ -828,11 +847,12 @@
   };
 
   // ====================== USER MESSAGE LISTENER ======================
+  // Note: This is kept for compatibility but AI never replies to user
   window.onUserMessage = function(msg) {
     recentMessages.push({ id: 'user_'+Date.now(), personaId:'user', senderName:msg.senderName, text:msg.text, element:null });
     if(recentMessages.length > 30) recentMessages.shift();
     log(`User message added: ${msg.text}`);
   };
 
-  log(`🤖 AI Persona Engine v6.5 loaded with ${personas.length} personas. AI-to-AI replies strongly prioritised (first look for AI messages). Reply chance: ${CONFIG.REPLY_CHANCE*100}%. Reply preview bar used only for AI-to-AI.`);
+  log(`🤖 AI Persona Engine v6.6 loaded with ${personas.length} personas. AI only replies to other AI (never to user). Chat seeded with initial AI messages. Reply chance: ${CONFIG.REPLY_CHANCE*100}%. Reply preview bar always used for AI-to-AI.`);
 })();
