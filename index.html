@@ -417,8 +417,8 @@
     svg.lucide,i[data-lucide] svg{stroke-width:1.7;}
     .text-blue-icon,.text-blue-icon svg{color:#2fa5ef;stroke:#2fa5ef;}
 
-    /* ---------- FLOATING TELEGRAM SUPPORT PILL ---------- */
-    .telegram-support {
+    /* ---------- FLOATING CONTACT SUPPORT PILL (renamed) ---------- */
+    .contact-support {
       position: fixed;
       bottom: 90px;
       right: 16px;
@@ -438,16 +438,16 @@
       border: none;
       font-family: inherit;
     }
-    .telegram-support:hover {
+    .contact-support:hover {
       transform: scale(1.02);
       background: #1f7ab3;
     }
-    .telegram-support i {
+    .contact-support i {
       width: 20px;
       height: 20px;
     }
 
-    /* ---------- ACTIVATION MODAL ---------- */
+    /* ---------- ACTIVATION MODAL (for signals) ---------- */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -526,6 +526,27 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    /* ---------- NEW MODAL FOR UNVERIFIED CHAT USER ---------- */
+    .unverified-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 210;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.2s;
+    }
+    .unverified-modal.active {
+      visibility: visible;
+      opacity: 1;
+    }
     @media (max-width:390px){
       .app{padding-left:8px;padding-right:8px;}
       .brand-text{font-size:15px;}
@@ -547,7 +568,7 @@
       .chat-support-ring{width:46px;height:46px;}
       .chat-brand-mark{width:25px;height:18px;}
       .chat-title{font-size:16px;}
-      .telegram-support { bottom: 80px; right: 12px; padding: 8px 14px; font-size: 13px; }
+      .contact-support { bottom: 80px; right: 12px; padding: 8px 14px; font-size: 13px; }
     }
   </style>
 </head>
@@ -654,7 +675,7 @@
         <div class="chat-content">
           <div class="chat-row-top">
             <div class="chat-title-wrap"><div class="chat-title">General Chat</div><div class="chat-status muted">Community</div></div>
-            <div class="chat-time">3:08 PM</div>
+            <div class="chat-time" id="chatPreviewTime">--:--</div>
           </div>
           <div class="chat-preview">Talk with members, share ideas, and stay updated with the group.</div>
           <div class="chat-meta"><span><i data-lucide="users"></i> Active room</span><span><i data-lucide="message-circle-more"></i> Group chat</span></div>
@@ -707,12 +728,12 @@
   <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
 </div>
 
-<!-- FLOATING TELEGRAM SUPPORT PILL -->
-<button class="telegram-support" id="telegramSupportBtn">
-  <i data-lucide="send"></i> Telegram Support
+<!-- FLOATING CONTACT SUPPORT PILL (renamed) -->
+<button class="contact-support" id="contactSupportBtn">
+  <i data-lucide="send"></i> Contact Support
 </button>
 
-<!-- ACTIVATION MODAL (hidden by default) -->
+<!-- ACTIVATION MODAL (for signals) -->
 <div class="modal-overlay" id="activationModal">
   <div class="modal-container">
     <div class="modal-icon">
@@ -729,6 +750,23 @@
       </button>
       <button class="modal-close-btn" id="modalCloseBtn">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- NEW MODAL FOR UNVERIFIED CHAT USER -->
+<div class="unverified-modal" id="unverifiedModal">
+  <div class="modal-container">
+    <div class="modal-icon">
+      <i data-lucide="alert-triangle" class="w-8 h-8 text-amber-500"></i>
+    </div>
+    <div class="modal-title">Verification Required</div>
+    <div class="modal-message">
+      You are not verified. Please contact support to activate your account and start chatting.
+    </div>
+    <button class="modal-support-btn" id="unverifiedModalSupportBtn">
+      <i data-lucide="send" class="w-4 h-4"></i> Contact Support
+    </button>
+    <button class="modal-close-btn" id="unverifiedModalCloseBtn">Close</button>
   </div>
 </div>
 
@@ -791,13 +829,13 @@
     });
     function updateClock(){ document.getElementById('currentTime').innerText = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
     setInterval(updateClock,1000); setInterval(updateAccuracy,60000); updateClock(); updateAccuracy(); renderSignal();
-    
+
     // ========== MODAL FOR GET SIGNAL BUTTON ==========
     const getSignalBtn = document.getElementById('getSignalBtn');
     const modalOverlay = document.getElementById('activationModal');
     const modalSupportBtn = document.getElementById('modalSupportBtn');
     const modalCloseBtn = document.getElementById('modalCloseBtn');
-    const telegramSupportBtn = document.getElementById('telegramSupportBtn');
+    const contactSupportBtn = document.getElementById('contactSupportBtn');
 
     function openModal() {
       modalOverlay.classList.add('active');
@@ -819,20 +857,14 @@
       closeModal();
     };
     modalCloseBtn.onclick = closeModal;
-    // Click outside modal to close
     modalOverlay.addEventListener('click', (e) => {
       if (e.target === modalOverlay) closeModal();
     });
-    // Telegram floating button
-    telegramSupportBtn.onclick = () => {
+    contactSupportBtn.onclick = () => {
       contactSupport();
     };
 
-    // The rest of the timer logic (optional, but keep existing functionality)
-    const timerBtns = document.querySelectorAll('.timer-btn');
-    timerBtns.forEach(btn => btn.onclick = ()=>{ if(!isSubscribed) return; const s = parseInt(btn.dataset.seconds); if(activeTimer) clearTimeout(activeTimer); activeTimer = setTimeout(()=>{ activeTimer=null; }, s*1000); timerBtns.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); });
-
-    // ========== CHAT LOGIC (same as before, with only general chat) ==========
+    // ========== CHAT LOGIC (with only general chat and user message blocking) ==========
     const ROOM_STORAGE_PREFIX = 'pocketOption_chat_messages_';
     const LEGACY_STORAGE_KEY = 'pocketOption_chat_messages';
     let isHydratingRoom = false;
@@ -845,12 +877,22 @@
           replyPreviewBar = document.getElementById('replyPreviewBar'), replyPreviewText = document.getElementById('replyPreviewText'),
           replyPreviewCloseBtn = document.getElementById('replyPreviewCloseBtn'), unreadPill = document.getElementById('unreadPill'),
           unreadCountSpan = document.getElementById('unreadCount'), galleryBtn = document.getElementById('galleryBtn'),
-          imageUploadInput = document.getElementById('imageUploadInput');
+          imageUploadInput = document.getElementById('imageUploadInput'), chatPreviewTime = document.getElementById('chatPreviewTime');
 
     const chatRooms = {
-      general: { name:'General Chat', status:'Community', statusClass:'muted', starter:[ {side:'incoming',text:'Welcome to General Chat.',time:'3:08 PM'}, {side:'outgoing',text:'Glad to be here.',time:'3:09 PM'} ] }
+      general: { name:'General Chat', status:'Community', statusClass:'muted', starter:[ {side:'incoming',text:'Welcome to General Chat.',time:'3:08 PM'} ] }  // removed outgoing "Glad to be here"
     };
     let currentChatRoom = 'general', replyingToMessage = null, unreadMessages = 0, isUserAtBottom = true, pendingImage = null;
+
+    // Update chat preview time dynamically (current time)
+    function updateChatPreviewTime() {
+      if(chatPreviewTime) {
+        const now = new Date();
+        chatPreviewTime.innerText = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      }
+    }
+    updateChatPreviewTime();
+    setInterval(updateChatPreviewTime, 60000);
 
     function roomStorageKey(roomKey) { return `${ROOM_STORAGE_PREFIX}${roomKey}`; }
 
@@ -1011,26 +1053,41 @@
       setComposerMode(); 
     }
 
+    // ========== BLOCK USER MESSAGES – show unverified modal ==========
+    const unverifiedModal = document.getElementById('unverifiedModal');
+    const unverifiedModalSupportBtn = document.getElementById('unverifiedModalSupportBtn');
+    const unverifiedModalCloseBtn = document.getElementById('unverifiedModalCloseBtn');
+
+    function openUnverifiedModal() {
+      unverifiedModal.classList.add('active');
+    }
+    function closeUnverifiedModal() {
+      unverifiedModal.classList.remove('active');
+    }
+    unverifiedModalSupportBtn.onclick = () => {
+      contactSupport();
+      closeUnverifiedModal();
+    };
+    unverifiedModalCloseBtn.onclick = closeUnverifiedModal;
+    unverifiedModal.addEventListener('click', (e) => {
+      if (e.target === unverifiedModal) closeUnverifiedModal();
+    });
+
+    // Override sendChatMessage – always show modal, never send
     function sendChatMessage(){
-      const text = chatInput.value.trim(); if(!text && !pendingImage) return;
-      const now = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-      const bubble = addMessageToFeed('outgoing', text, now, 'sent', pendingImage);
-      if(window.onUserMessage) { window.onUserMessage({ senderName: 'You', text: text }); }
-      pendingImage = null;
-      chatInput.placeholder = 'Message...';
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      openUnverifiedModal();
+      // Also clear input and pending image if any
+      if(pendingImage) pendingImage = null;
       chatInput.value = '';
       setComposerMode();
-      const ticks = bubble.querySelector('.chat-ticks');
-      setTimeout(()=>{ if(ticks) ticks.textContent='✓✓'; ticks?.classList.add('delivered'); },800);
-      setTimeout(()=>{ ticks?.classList.remove('delivered'); ticks?.classList.add('seen'); },1800);
+      return;
     }
 
     chatGeneralBtn.onclick = ()=> openChatRoom('general');
     chatBackBtn.onclick = closeChatRoom;
     chatInput.oninput = setComposerMode;
     chatInput.onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); sendChatMessage(); } };
-    chatSendBtn.onclick = ()=>{ if(chatInput.value.trim()||pendingImage) sendChatMessage(); else chatInput.focus(); };
+    chatSendBtn.onclick = ()=>{ sendChatMessage(); };
     galleryBtn.onclick = ()=> imageUploadInput.click();
     imageUploadInput.onchange = e=>{ const file = e.target.files[0]; if(file){ const reader = new FileReader(); reader.onload = ev=>{ pendingImage = ev.target.result; chatInput.placeholder='Add caption (optional)'; }; reader.readAsDataURL(file); } };
 
@@ -1078,7 +1135,7 @@
     lucide.createIcons();
   })();
 </script>
-<!-- AI Persona Engine (external) -->
+<!-- AI Persona Engine (external) – will be provided separately -->
 <script src="ai-persona-engine.js"></script>
 </body>
 </html>
