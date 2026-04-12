@@ -1,22 +1,22 @@
-// ====================== AI PERSONA ENGINE v6.2 (Finetuned + Expanded Templates) ======================
-// 450+ personas · Realistic avatars · Archetypes · HIGH-FREQUENCY reply previews
-// Local testimonial images (20) with duplicate avoidance · Greatly expanded phrase banks
-// ====================================================================================================
+// ====================== AI PERSONA ENGINE v6.3 (Final) ======================
+// 450+ personas · Realistic avatars · Archetypes · AI-to-AI reply previews only
+// Local testimonial images (20) with duplicate avoidance · Full expanded phrase banks
+// ============================================================================
 
 (function(){
   "use strict";
 
   const CONFIG = {
-    BASE_INTERVAL: 7000,            // slightly faster replies (was 8000)
-    BURST_CHANCE: 0.25,             // increased burst chance
-    TRADE_RESULT_INTERVAL: 18000,   // more frequent trade results
-    TRADE_RESULT_CHANCE: 0.45,      // higher chance
-    TESTIMONIAL_CHANCE: 0.15,       // increased
-    JOIN_CHANCE: 0.08,              // increased join chance
-    MAX_BURST_MESSAGES: 5,          // more messages in a burst
+    BASE_INTERVAL: 7000,
+    BURST_CHANCE: 0.25,
+    TRADE_RESULT_INTERVAL: 18000,
+    TRADE_RESULT_CHANCE: 0.45,
+    TESTIMONIAL_CHANCE: 0.15,
+    JOIN_CHANCE: 0.08,
+    MAX_BURST_MESSAGES: 5,
     ENABLE_LOGGING: true,
     WATCHER_ACTIVITY_PENALTY: 0.7,
-    REPLY_CHANCE: 0.55              // much higher reply chance (was 0.45)
+    REPLY_CHANCE: 0.35   // moderate reply chance
   };
 
   const MessageType = {
@@ -47,7 +47,7 @@
   const randomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
   const log = (...args) => CONFIG.ENABLE_LOGGING && console.log('[AI]', ...args);
 
-  // ---------- MULTI-SOURCE AVATAR SYSTEM (unchanged) ----------
+  // ---------- MULTI-SOURCE AVATAR SYSTEM ----------
   const avatarSources = [
     { type: 'randomuser', url: (name, gender, seed) => `https://randomuser.me/api/portraits/${gender}/${Math.abs(seed) % 100}.jpg`, weight: 80 },
     { type: 'picsum', url: (name, gender, seed) => `https://picsum.photos/id/${100 + (Math.abs(seed) % 300)}/200/200`, weight: 10 },
@@ -77,8 +77,7 @@
     return null;
   }
 
-  // ---------- GENDER INFERENCE (unchanged, but expanded sets) ----------
-  // (maleNames and femaleNames remain same – already comprehensive)
+  // ---------- GENDER INFERENCE ----------
   const maleNames = new Set([
     "Daniel","Chidi","Olu","Tunde","Emeka","Ifeanyi","Yemi","Bimbo","Segun","Bayo","Obinna","Nnamdi","Uchenna","Chika","Onyeka","Efe","Temi",
     "Oliver","Harry","George","Jack","Charlie","James","Thomas","William","Henry","Oscar","Leo","Alfie",
@@ -109,7 +108,7 @@
     return firstName.endsWith("a") || firstName.endsWith("e") ? "women" : "men";
   }
 
-  // ---------- PERSONA ARCHETYPES (unchanged) ----------
+  // ---------- PERSONA ARCHETYPES ----------
   const archetypes = [
     { name: "watcher", activityMult: 0.15, traits: ["quiet","observant"], messageTypes: [MessageType.REACTION, MessageType.COMMUNITY], chance: 0.25 },
     { name: "active", activityMult: 1.0, traits: ["talkative","friendly"], messageTypes: Object.values(MessageType), chance: 0.35 },
@@ -195,7 +194,6 @@
       "is this a scam?", "how long to become profitable?",
       "can I see your trading account?", "do you have a verified track record?",
       "what's the difference between OTC and real?", "how do I improve my accuracy?",
-      // additional questions
       "what's the spread like?", "does this work on mobile?", "anyone else in this trade?",
       "should I wait for confirmation?", "what's your risk reward ratio?", "how many pips do you target?",
       "do you use trailing stop?", "what's your success rate this month?", "can I trade this on weekends?",
@@ -226,7 +224,6 @@
       "win streak: 4", "finally a green day", "recovered last week's loss",
       "stuck to the plan and it paid off", "no more FOMO", "trust the process",
       "this is the way", "slow and steady", "compounding works",
-      // additional results
       "just banked +120 pips", "target hit! 🎯", "risk 1% made 3%", "ez money this morning",
       "lost 2% but I'm calm", "won 5 trades in a row!", "that was a perfect setup", "price did exactly what I expected",
       "I'm done for the day, green", "biggest win this month!", "small win > small loss", "compounding baby!"
@@ -246,7 +243,6 @@
       "free pips", "another one", "add to the collection", "banked",
       "secured", "locked in", "print it", "cash out", "good trade",
       "nice call", "well played", "gg", "wp",
-      // additional reactions
       "sheesh! 🥶", "no way! 🔥", "I saw that move too", "you're a beast",
       "respect the discipline", "trading goals", "love the consistency", "that's what I'm talking about",
       "bro you're different", "teach me 🙏", "insane accuracy", "keep cooking"
@@ -272,7 +268,6 @@
       "don't marry a position", "be flexible", "adapt to market conditions",
       "know when to switch pairs", "session matters", "liquidity is key",
       "avoid exotic pairs", "major pairs are more predictable",
-      // additional advice
       "watch the 1H candle close", "check higher timeframe trend", "don't trade during rollover",
       "use a demo first", "paper trade until consistent", "journal every trade",
       "review your losers", "find your edge", "stick to your system", "don't listen to FOMO"
@@ -292,7 +287,6 @@
       "catching knives (not today)", "precision entries", "no slippage",
       "perfect execution", "timing on point", "analysis paid off",
       "homework done", "preparation meets opportunity", "luck is for amateurs",
-      // additional hype
       "let's gooo!", "another green day", "bank account looking healthy", "we don't miss",
       "easy work", "that's my strategy", "trust the plan", "grinding to the top",
       "building wealth slowly", "compounding is king", "this is just the beginning"
@@ -309,7 +303,6 @@
       "who's ready for London session?", "NY open soon", "Asian session quiet",
       "just woke up, time to trade", "coffee first, then charts",
       "checking in", "how's the market treating you?", "any big news today?",
-      // additional greetings
       "gm traders", "gn guys", "afternoon everyone", "hope you're all green",
       "just got in, what's the move?", "anyone scalping today?", "London open soon, be ready",
       "NY session about to pop", "Friday vibes, don't overtrade", "weekend prep, review your week"
@@ -331,7 +324,6 @@
       "which broker is best for beginners?", "do I need a VPN?",
       "is my country restricted?", "what are the trading hours?",
       "can I trade on weekends?", "how do I read the economic calendar?",
-      // additional confused
       "I don't get it", "this is confusing", "what does that indicator mean?", "why did price reverse?",
       "is that a support level?", "how do you calculate lot size?", "what's leverage?",
       "I'm so lost", "anyone have a beginner guide?", "I need help with the platform"
@@ -350,7 +342,6 @@
       "anyone else catch that move?", "I'm just getting started",
       "wait till you see my next trade", "consistency is king",
       "I don't gamble, I calculate", "risk management on point",
-      // additional flex
       "💰💰💰", "easy money this week", "my system is unstoppable", "back to back wins",
       "10 wins 0 losses", "who else caught that?", "I'm on fire", "trading is simple when you follow rules"
     ],
@@ -365,7 +356,6 @@
       "everyone starts somewhere", "no question is stupid", "ask away",
       "we were all beginners once", "stay humble", "help others when you can",
       "pay it forward", "good karma", "what goes around comes around",
-      // additional community
       "shoutout to the admin", "thanks for the signals", "this group is gold", "appreciate everyone",
       "let's all succeed together", "great teamwork today", "proud of this community"
     ],
@@ -395,7 +385,6 @@
       "I've learned so much just by watching the chat.",
       "This group changed my perspective on trading.",
       "I'm a full-time trader now thanks to the skills I learned here.",
-      // additional testimonials
       "Withdrew $500 yesterday. Thank you!", "Signal hit TP in 2 minutes. Wow.", "Best $50 I ever spent on education.",
       "My account grew 200% in one month.", "I'm finally profitable after years.", "This group gave me the confidence to trade live.",
       "No more gambling. I have a real edge now.", "I was about to quit. You guys saved me."
@@ -421,7 +410,6 @@
       "I'm here to soak up all the knowledge.",
       "hope to contribute as I learn.",
       "thanks for the add!",
-      // additional joins
       "what's good fam, just joined", "another newbie here", "just got in, let's get this bread",
       "hey everyone, excited to be here", "joined after watching the testimonials"
     ],
@@ -430,7 +418,6 @@
       "I'm sure this time it's different", "great, another loss, just what I needed",
       "my stop loss is my best friend", "trading is so relaxing they said",
       "of course it reversed right after I entered", "classic",
-      // more sarcastic
       "yeah, because that always works", "must be nice to never lose", "another perfect entry... not",
       "I love losing money, said no one ever", "this market is a joke"
     ],
@@ -439,7 +426,6 @@
       "my stop loss is my wife's patience", "trading is easy, just buy the dip and watch it dip further",
       "I'm in a committed relationship with my losses", "profit? never heard of her",
       "I put the 'fun' in 'funds'", "my account looks like a ski slope 🎿",
-      // more funny
       "I thought I was buying the dip, but it was a cliff", "my strategy is called 'hope'",
       "I'm not a trader, I'm a professional donation sender", "my chart looks like a heartbeat"
     ],
@@ -448,7 +434,6 @@
       "support at 1.0850, resistance at 1.0920", "volume confirms the move",
       "looking at the order flow, smart money is buying", "fib levels suggest a pullback to 0.618",
       "market structure is bullish above the trendline", "watch for a break of the consolidation",
-      // more analytical
       "MACD histogram is flattening, possible reversal", "Bollinger bands are squeezing, breakout soon",
       "AUD/USD showing bullish engulfing on daily", "EUR/GBP respecting the 200 EMA", "watch the US30 for a double bottom"
     ]
@@ -467,7 +452,6 @@
     Mexico: ["órale", "ándale", "qué padre", "wey", "neta", "chido", "no manches", "a huevo", "chingón", "padrísimo", "qué onda", "güey", "chale", "ándale pues", "simón"]
   };
 
-  // ---------- NAMES (unchanged) ----------
   const firstNames = {
     Nigeria: ["Daniel","Chidi","Amara","Olu","Tunde","Ngozi","Emeka","Folake","Ifeanyi","Yemi","Bimbo","Segun","Yetunde","Kemi","Bayo","Chinwe","Obinna","Adaobi","Nnamdi","Uchenna","Chika","Onyeka","Ndidi","Efe","Temi"],
     "United Kingdom": ["Maya","Oliver","Sophie","Harry","Emily","George","Lucy","Jack","Amelia","Charlie","Grace","James","Alice","Thomas","Ella","William","Lily","Henry","Mia","Oscar","Isla","Leo","Poppy","Alfie","Evie"],
@@ -507,7 +491,7 @@
     { country:"Mexico", timezone:"America/Mexico_City", type:"intermediate", intent:"community", typing:[900,1700], grammar:"mixed", slang:0.6, activity:"high", online:[8,24] }
   ];
 
-  // ---------- BUILD PERSONAS (unchanged) ----------
+  // ---------- BUILD PERSONAS ----------
   const personas = [];
   let idCounter = 1;
 
@@ -566,7 +550,7 @@
     p.messageBank = bank;
   });
 
-  // ---------- SIMULATION STATE (unchanged except CONFIG) ----------
+  // ---------- SIMULATION STATE ----------
   let activeTimeouts = [], lastMessageType = null, lastPersonaId = null, simulationActive = false, tradeResultInterval = null;
   const recentMessages = [];
   const chatAPI = window.chatAPI || {};
@@ -655,14 +639,14 @@
 
   let activeCluster = null;
 
-  // ========== ENHANCED REPLY FUNCTION (priority scoring, always uses replyTo) ==========
+  // ========== ENHANCED REPLY FUNCTION: reply preview only for AI-to-AI ==========
   function maybeSendReply(){
     if(!recentMessages.length || Math.random() > CONFIG.REPLY_CHANCE) return false;
     
     const candidates = recentMessages.filter(m => m.personaId !== lastPersonaId);
     if(candidates.length === 0) return false;
     
-    // Score candidates: questions, testimonials, results get higher priority
+    // Score candidates (priority for questions, testimonials, results)
     const scored = candidates.map(msg => {
       let score = 1;
       const lower = msg.text.toLowerCase();
@@ -681,40 +665,10 @@
     const persona = pickDifferentPersona();
     if(!persona) return false;
     
-    // Cluster continuation
-    if(activeCluster && activeCluster.count < 4 && Math.random() < 0.6){
-      const last = recentMessages[recentMessages.length-1];
-      if(last && last.text.toLowerCase().includes(activeCluster.topic)){
-        if(!activeCluster.participants.includes(persona.id)){
-          activeCluster.participants.push(persona.id);
-          activeCluster.count++;
-          const replyText = pick(["same here", "agreed", "what he said", "facts", "this", "exactly", "👆"]);
-          const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-          if(chatAPI.addIncomingMessage){
-            chatAPI.addIncomingMessage({
-              senderName: persona.name,
-              senderAvatar: persona.avatar,
-              text: replyText,
-              time: timeStr,
-              personaId: persona.id,
-              replyTo: { senderName: target.senderName, text: target.text.substring(0,50) }
-            });
-          }
-          lastPersonaId = persona.id;
-          return true;
-        }
-      } else { activeCluster = null; }
-    }
+    // Determine if target is from user
+    const isTargetUser = (target.personaId === 'user');
     
-    // Start new cluster
-    if(Math.random() < 0.25 && target.text.length > 20 && !activeCluster){
-      const keywords = target.text.split(' ').filter(w => w.length > 5);
-      if(keywords.length){
-        activeCluster = { topic: keywords[0].toLowerCase(), participants: [target.personaId, persona.id], count: 2 };
-      }
-    }
-    
-    // Generate contextual reply
+    // Generate contextual reply text
     let replyText = "";
     const lowerText = target.text.toLowerCase();
     if(lowerText.includes("win") || lowerText.includes("profit") || lowerText.includes("%") || lowerText.includes("tp")){
@@ -732,17 +686,26 @@
     }
     
     const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    if(chatAPI.addIncomingMessage){
-      chatAPI.addIncomingMessage({
-        senderName: persona.name,
-        senderAvatar: persona.avatar,
-        text: replyText,
-        time: timeStr,
-        personaId: persona.id,
-        replyTo: { senderName: target.senderName, text: target.text.substring(0,50) }
-      });
-      log(`🤖 ${persona.name} replied to ${target.senderName}: "${replyText}" (score: ${scored.find(s=>s.msg===target)?.score})`);
+    
+    // Send message with replyTo ONLY if target is NOT the user
+    const msgData = {
+      senderName: persona.name,
+      senderAvatar: persona.avatar,
+      text: replyText,
+      time: timeStr,
+      personaId: persona.id
+    };
+    if(!isTargetUser) {
+      msgData.replyTo = { 
+        senderName: target.senderName, 
+        text: target.text.substring(0, 50) 
+      };
+      log(`🤖 ${persona.name} replied to AI ${target.senderName} with preview: "${replyText}"`);
+    } else {
+      log(`🤖 ${persona.name} replied to user ${target.senderName} without preview: "${replyText}"`);
     }
+    if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage(msgData);
+    
     lastPersonaId = persona.id;
     return true;
   }
@@ -815,7 +778,7 @@
 
   window.AIPersonaSimulator = { isActive: ()=>simulationActive, getPersonas: ()=>personas };
 
-  // ====================== V4: MEMORY & PERSISTENCE (unchanged) ======================
+  // ====================== V4: MEMORY & PERSISTENCE ======================
   const STORAGE_KEY = "ai_chat_history_v4";
   const PERSONA_KEY = "ai_persona_state_v4";
   const load = key => { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; } };
@@ -865,5 +828,5 @@
     log(`User message added: ${msg.text}`);
   };
 
-  log(`🤖 AI Persona Engine v6.2 loaded with ${personas.length} personas (randomuser 80%, picsum 10%, unsplash 5%, text 5%). Local testimonial images (${TOTAL_TESTIMONIALS}) with duplicate avoidance. Reply chance: ${CONFIG.REPLY_CHANCE*100}% with priority scoring. Templates greatly expanded.`);
+  log(`🤖 AI Persona Engine v6.3 loaded with ${personas.length} personas. AI-to-AI replies use reply preview bar; user replies are simple. Reply chance: ${CONFIG.REPLY_CHANCE*100}%.`);
 })();
