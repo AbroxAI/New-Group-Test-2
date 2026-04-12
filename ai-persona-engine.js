@@ -1,7 +1,7 @@
-// ====================== AI PERSONA ENGINE v6.6 (Final – AI only replies to AI) ======================
-// 450+ personas · Realistic avatars · Archetypes · AI-to-AI reply previews only (never to user)
-// Local testimonial images (20) with duplicate avoidance · Full expanded phrase banks · Chat seeding
-// ====================================================================================================
+// ====================== AI PERSONA ENGINE v7.0 (FORCED AI-TO-AI REPLIES) ======================
+// 450+ personas · Realistic avatars · Archetypes · 100% reply chance · Always uses reply preview
+// Local testimonial images (20) with duplicate avoidance · Full expanded phrase banks
+// =============================================================================================
 
 (function(){
   "use strict";
@@ -16,7 +16,7 @@
     MAX_BURST_MESSAGES: 5,
     ENABLE_LOGGING: true,
     WATCHER_ACTIVITY_PENALTY: 0.7,
-    REPLY_CHANCE: 0.65   // high chance for AI-to-AI replies
+    REPLY_CHANCE: 1.0   // forced replies – always reply to AI messages
   };
 
   const MessageType = {
@@ -47,7 +47,7 @@
   const randomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
   const log = (...args) => CONFIG.ENABLE_LOGGING && console.log('[AI]', ...args);
 
-  // ---------- MULTI-SOURCE AVATAR SYSTEM (unchanged) ----------
+  // ---------- MULTI-SOURCE AVATAR SYSTEM ----------
   const avatarSources = [
     { type: 'randomuser', url: (name, gender, seed) => `https://randomuser.me/api/portraits/${gender}/${Math.abs(seed) % 100}.jpg`, weight: 80 },
     { type: 'picsum', url: (name, gender, seed) => `https://picsum.photos/id/${100 + (Math.abs(seed) % 300)}/200/200`, weight: 10 },
@@ -77,7 +77,7 @@
     return null;
   }
 
-  // ---------- GENDER INFERENCE (unchanged) ----------
+  // ---------- GENDER INFERENCE ----------
   const maleNames = new Set([
     "Daniel","Chidi","Olu","Tunde","Emeka","Ifeanyi","Yemi","Bimbo","Segun","Bayo","Obinna","Nnamdi","Uchenna","Chika","Onyeka","Efe","Temi",
     "Oliver","Harry","George","Jack","Charlie","James","Thomas","William","Henry","Oscar","Leo","Alfie",
@@ -108,7 +108,7 @@
     return firstName.endsWith("a") || firstName.endsWith("e") ? "women" : "men";
   }
 
-  // ---------- PERSONA ARCHETYPES (unchanged) ----------
+  // ---------- PERSONA ARCHETYPES ----------
   const archetypes = [
     { name: "watcher", activityMult: 0.15, traits: ["quiet","observant"], messageTypes: [MessageType.REACTION, MessageType.COMMUNITY], chance: 0.25 },
     { name: "active", activityMult: 1.0, traits: ["talkative","friendly"], messageTypes: Object.values(MessageType), chance: 0.35 },
@@ -164,7 +164,7 @@
 
   initTestimonialRotation();
 
-  // ---------- FULL PHRASE BANKS (same as your v6.5 – all included) ----------
+  // ---------- FULL PHRASE BANKS (all original phrases) ----------
   const globalPhraseBank = {
     question: [
       "how do you enter this trade?", "is this signal safe?", "what timeframe?",
@@ -607,7 +607,8 @@
 
   function isGeneralChatActive() { return window.__activeChatRoom === 'general' && chatAPI.isChatRoomActive?.(); }
 
-  function sendPersonaMessage(persona, replyTo=null){
+  // Original sendPersonaMessage (to be used internally)
+  function sendPersonaMessageOriginal(persona, replyTo=null){
     if (!isGeneralChatActive()) return;
     if(persona.archetype === 'watcher' && Math.random() > 0.15) return;
     const isTestimonial = Math.random() < CONFIG.TESTIMONIAL_CHANCE && persona.messageBank[MessageType.TESTIMONIAL];
@@ -624,6 +625,63 @@
     log(`${persona.name} (${persona.archetype}): ${text}`);
   }
 
+  // ========== FORCED REPLY LOGIC ==========
+  function forceReplyToLastAIMessage() {
+    if(!simulationActive || !isGeneralChatActive()) return;
+    
+    // Find the most recent message from an AI (not user)
+    const lastAIMessage = [...recentMessages].reverse().find(m => m.personaId !== 'user');
+    if(!lastAIMessage) return;
+    
+    // Don't reply to self
+    if(lastAIMessage.personaId === lastPersonaId) return;
+    
+    const persona = pickDifferentPersona();
+    if(!persona) return;
+    
+    // Generate contextual reply
+    let replyText = "";
+    const lowerText = lastAIMessage.text.toLowerCase();
+    if(lowerText.includes("win") || lowerText.includes("profit") || lowerText.includes("%") || lowerText.includes("tp")){
+      replyText = pick(["nice win! 🔥", "congrats on that profit", "that's what I'm talking about", "let's gooo", "🚀🚀", "well played"]);
+    } else if(lowerText.includes("loss") || lowerText.includes("lost") || lowerText.includes("stop") || lowerText.includes("missed")){
+      replyText = pick(["tough one mate", "next trade will be better", "happens to everyone", "keep your head up", "you'll get the next one", "part of the game"]);
+    } else if(lowerText.includes("?") || lowerText.includes("how") || lowerText.includes("what") || lowerText.includes("when")){
+      replyText = pick(["good question", "I was wondering the same", "anyone have an answer?", "would like to know too", "curious about that as well"]);
+    } else if(lowerText.includes("signal") || lowerText.includes("entry") || lowerText.includes("trade")){
+      replyText = pick(["following this 📈", "already in", "looks solid", "agree with the setup", "I'm watching this too"]);
+    } else if(lowerText.includes("testimonial") || lowerText.includes("proof") || lowerText.includes("withdrawal") || lastAIMessage.imageUrl){
+      replyText = pick(["nice! keep it up", "love to see it", "inspiring", "motivating", "this is the way"]);
+    } else {
+      replyText = pick(["exactly!", "well said", "facts 💯", "this 👆", "couldn't agree more", "🔥🔥", "for real", "no cap"]);
+    }
+    
+    const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const msgData = {
+      senderName: persona.name,
+      senderAvatar: persona.avatar,
+      text: replyText,
+      time: timeStr,
+      personaId: persona.id,
+      replyTo: {
+        senderName: lastAIMessage.senderName,
+        text: lastAIMessage.text.substring(0, 50)
+      }
+    };
+    log(`🤖 ${persona.name} forced reply to AI ${lastAIMessage.senderName} with preview: "${replyText}"`);
+    if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage(msgData);
+    lastPersonaId = persona.id;
+  }
+
+  // Override sendPersonaMessage to trigger a forced reply after sending
+  const sendPersonaMessage = function(persona, replyTo=null) {
+    sendPersonaMessageOriginal(persona, replyTo);
+    // After a delay (simulate thinking), force a reply to the message just sent
+    setTimeout(() => {
+      forceReplyToLastAIMessage();
+    }, randomBetween(2000, 4000));
+  };
+
   function simulateJoin(){
     if (!isGeneralChatActive()) return;
     const country = pick(Object.keys(firstNames));
@@ -635,74 +693,6 @@
     const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     if(chatAPI.addSystemMessage) chatAPI.addSystemMessage({ text: `🎉 ${name} ${joinText}`, time: timeStr });
     setTimeout(()=>{ if(!simulationActive) return; showTyping({name, avatar}); setTimeout(()=>{ hideTyping(); if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName:name, senderAvatar:avatar, text: pick(["thanks for the warm welcome!","excited to be here","hello everyone!"]), time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}), personaId:'join_'+Date.now() }); },1500); },3000);
-  }
-
-  let activeCluster = null;
-
-  // ========== AI-ONLY REPLY FUNCTION (never replies to user) ==========
-  function maybeSendReply(){
-    if(!recentMessages.length || Math.random() > CONFIG.REPLY_CHANCE) return false;
-    
-    // Only consider messages from other AI personas (never user, never self)
-    let candidates = recentMessages.filter(m => m.personaId !== lastPersonaId && m.personaId !== 'user');
-    if(candidates.length === 0) return false;
-    
-    // Score candidates (questions, testimonials, results get higher score)
-    const scored = candidates.map(msg => {
-      let score = 1;
-      const lower = msg.text.toLowerCase();
-      if(lower.includes('?') || lower.includes('how') || lower.includes('what') || lower.includes('when')) score += 3;
-      if(lower.includes('testimonial') || lower.includes('proof') || lower.includes('withdrawal')) score += 3;
-      if(lower.includes('win') || lower.includes('profit') || lower.includes('%') || lower.includes('tp')) score += 2;
-      if(lower.includes('loss') || lower.includes('lost') || lower.includes('stop')) score += 2;
-      if(lower.includes('signal') || lower.includes('entry') || lower.includes('trade')) score += 1;
-      if(msg.imageUrl) score += 2;
-      return { msg, score };
-    });
-    scored.sort((a,b) => b.score - a.score);
-    const top = scored.slice(0, 3);
-    const target = pick(top).msg;
-    
-    const persona = pickDifferentPersona();
-    if(!persona) return false;
-    
-    // Contextual reply text (same as before)
-    let replyText = "";
-    const lowerText = target.text.toLowerCase();
-    if(lowerText.includes("win") || lowerText.includes("profit") || lowerText.includes("%") || lowerText.includes("tp")){
-      replyText = pick(["nice win! 🔥", "congrats on that profit", "that's what I'm talking about", "let's gooo", "🚀🚀", "well played"]);
-    } else if(lowerText.includes("loss") || lowerText.includes("lost") || lowerText.includes("stop") || lowerText.includes("missed")){
-      replyText = pick(["tough one mate", "next trade will be better", "happens to everyone", "keep your head up", "you'll get the next one", "part of the game"]);
-    } else if(lowerText.includes("?") || lowerText.includes("how") || lowerText.includes("what") || lowerText.includes("when")){
-      replyText = pick(["good question", "I was wondering the same", "anyone have an answer?", "would like to know too", "curious about that as well"]);
-    } else if(lowerText.includes("signal") || lowerText.includes("entry") || lowerText.includes("trade")){
-      replyText = pick(["following this 📈", "already in", "looks solid", "agree with the setup", "I'm watching this too"]);
-    } else if(lowerText.includes("testimonial") || lowerText.includes("proof") || lowerText.includes("withdrawal") || target.imageUrl){
-      replyText = pick(["nice! keep it up", "love to see it", "inspiring", "motivating", "this is the way"]);
-    } else {
-      replyText = pick(["exactly!", "well said", "facts 💯", "this 👆", "couldn't agree more", "🔥🔥", "for real", "no cap"]);
-    }
-    
-    const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    
-    // ALWAYS use reply preview for AI-to-AI (target is always AI here)
-    const msgData = {
-      senderName: persona.name,
-      senderAvatar: persona.avatar,
-      text: replyText,
-      time: timeStr,
-      personaId: persona.id,
-      replyTo: { 
-        senderName: target.senderName, 
-        text: target.text.substring(0, 50) 
-      }
-    };
-    log(`🤖 ${persona.name} replied to AI ${target.senderName} with preview: "${replyText}"`);
-    
-    if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage(msgData);
-    
-    lastPersonaId = persona.id;
-    return true;
   }
 
   function triggerBurst(){
@@ -724,7 +714,6 @@
   function simulationTick(){
     if(!simulationActive || !isGeneralChatActive()) return;
     if(Math.random() < CONFIG.JOIN_CHANCE) simulateJoin();
-    if(maybeSendReply()){ activeTimeouts.push(setTimeout(simulationTick, CONFIG.BASE_INTERVAL+randomBetween(-2000,5000))); return; }
     if(Math.random() < CONFIG.BURST_CHANCE) triggerBurst();
     else {
       const p = pickDifferentPersona();
@@ -761,13 +750,11 @@
   function stopSimulation(){ simulationActive=false; activeTimeouts.forEach(clearTimeout); activeTimeouts=[]; hideTyping(); log('🛑 Simulation stopped'); }
   function startTradeResultInjection(){ if(tradeResultInterval) clearInterval(tradeResultInterval); tradeResultInterval = setInterval(()=>{ if(!simulationActive||!isGeneralChatActive()) return; if(Math.random()<CONFIG.TRADE_RESULT_CHANCE) injectTradeResult(); }, CONFIG.TRADE_RESULT_INTERVAL); }
 
-  // ========== CHAT SEEDING: inject 3 initial AI messages when chat opens ==========
-  // Override startSimulation to also seed the chat
+  // Seed chat with initial AI messages
   const originalStartSimulation = startSimulation;
   startSimulation = function() {
     if(simulationActive) return;
     originalStartSimulation();
-    // Seed the chat with 3 AI messages after 2 seconds (so welcome message is there)
     setTimeout(() => {
       if(simulationActive && isGeneralChatActive()) {
         let count = 0;
@@ -803,7 +790,7 @@
 
   window.AIPersonaSimulator = { isActive: ()=>simulationActive, getPersonas: ()=>personas };
 
-  // ====================== V4: MEMORY & PERSISTENCE (unchanged) ======================
+  // ====================== V4: MEMORY & PERSISTENCE ======================
   const STORAGE_KEY = "ai_chat_history_v4";
   const PERSONA_KEY = "ai_persona_state_v4";
   const load = key => { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; } };
@@ -847,12 +834,11 @@
   };
 
   // ====================== USER MESSAGE LISTENER ======================
-  // Note: This is kept for compatibility but AI never replies to user
   window.onUserMessage = function(msg) {
     recentMessages.push({ id: 'user_'+Date.now(), personaId:'user', senderName:msg.senderName, text:msg.text, element:null });
     if(recentMessages.length > 30) recentMessages.shift();
     log(`User message added: ${msg.text}`);
   };
 
-  log(`🤖 AI Persona Engine v6.6 loaded with ${personas.length} personas. AI only replies to other AI (never to user). Chat seeded with initial AI messages. Reply chance: ${CONFIG.REPLY_CHANCE*100}%. Reply preview bar always used for AI-to-AI.`);
+  log(`🤖 AI Persona Engine v7.0 loaded with ${personas.length} personas. Forced AI-to-AI replies (100% chance). Reply preview bar always used. Chat seeded with initial AI messages.`);
 })();
