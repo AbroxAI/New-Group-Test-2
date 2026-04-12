@@ -607,6 +607,28 @@
 
   function isGeneralChatActive() { return window.__activeChatRoom === 'general' && chatAPI.isChatRoomActive?.(); }
 
+  function getLastReplyTarget(excludePersonaId = null) {
+    const target = [...recentMessages].reverse().find(m => m.text && m.personaId !== excludePersonaId);
+    if (!target) return null;
+    return { senderName: target.senderName, text: target.text.substring(0, 50) };
+  }
+
+  function buildReplyText(lastText) {
+    const lowerText = (lastText || "").toLowerCase();
+    if(lowerText.includes("win") || lowerText.includes("profit") || lowerText.includes("%") || lowerText.includes("tp")){
+      return pick(["nice win! 🔥", "congrats on that profit", "that's what I'm talking about", "let's gooo", "🚀🚀", "well played"]);
+    } else if(lowerText.includes("loss") || lowerText.includes("lost") || lowerText.includes("stop") || lowerText.includes("missed")){
+      return pick(["tough one mate", "next trade will be better", "happens to everyone", "keep your head up", "you'll get the next one", "part of the game"]);
+    } else if(lowerText.includes("?") || lowerText.includes("how") || lowerText.includes("what") || lowerText.includes("when")){
+      return pick(["good question", "I was wondering the same", "anyone have an answer?", "would like to know too", "curious about that as well"]);
+    } else if(lowerText.includes("signal") || lowerText.includes("entry") || lowerText.includes("trade")){
+      return pick(["following this 📈", "already in", "looks solid", "agree with the setup", "I'm watching this too"]);
+    } else if(lowerText.includes("testimonial") || lowerText.includes("proof") || lowerText.includes("withdrawal")){
+      return pick(["nice! keep it up", "love to see it", "inspiring", "motivating", "this is the way"]);
+    }
+    return pick(["exactly!", "well said", "facts 💯", "this 👆", "couldn't agree more", "🔥🔥", "for real", "no cap"]);
+  }
+
   // Original sendPersonaMessage (to be used internally)
   function sendPersonaMessageOriginal(persona, replyTo=null){
     if (!isGeneralChatActive()) return;
@@ -616,7 +638,8 @@
     const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     let imageUrl = shouldAttachImage(persona, type) ? getRandomTestimonialImage() : null;
     const msgData = { senderName: persona.name, senderAvatar: persona.avatar, text, time: timeStr, personaId: persona.id, messageType: type, imageUrl };
-    if(replyTo) msgData.replyTo = { senderName: replyTo.senderName, text: replyTo.text.substring(0,50) };
+    const replyTarget = replyTo || getLastReplyTarget(persona.id);
+    if(replyTarget) msgData.replyTo = replyTarget;
     if(chatAPI.addIncomingMessage){
       const el = chatAPI.addIncomingMessage(msgData);
       if(el) { recentMessages.push({ id: persona.id+'_'+Date.now(), personaId: persona.id, senderName: persona.name, text, element: el }); if(recentMessages.length>30) recentMessages.shift(); }
@@ -628,32 +651,11 @@
   // ========== CORRECTED FORCED REPLY LOGIC (no early return) ==========
   function forceReplyToLastAIMessage() {
     if(!simulationActive || !isGeneralChatActive()) return;
-    
-    // Find the most recent message from an AI (not user)
     const lastAIMessage = [...recentMessages].reverse().find(m => m.personaId !== 'user');
     if(!lastAIMessage) return;
-    
-    // pickDifferentPersona will automatically exclude the original sender
     const persona = pickDifferentPersona();
     if(!persona) return;
-    
-    // Generate contextual reply
-    let replyText = "";
-    const lowerText = lastAIMessage.text.toLowerCase();
-    if(lowerText.includes("win") || lowerText.includes("profit") || lowerText.includes("%") || lowerText.includes("tp")){
-      replyText = pick(["nice win! 🔥", "congrats on that profit", "that's what I'm talking about", "let's gooo", "🚀🚀", "well played"]);
-    } else if(lowerText.includes("loss") || lowerText.includes("lost") || lowerText.includes("stop") || lowerText.includes("missed")){
-      replyText = pick(["tough one mate", "next trade will be better", "happens to everyone", "keep your head up", "you'll get the next one", "part of the game"]);
-    } else if(lowerText.includes("?") || lowerText.includes("how") || lowerText.includes("what") || lowerText.includes("when")){
-      replyText = pick(["good question", "I was wondering the same", "anyone have an answer?", "would like to know too", "curious about that as well"]);
-    } else if(lowerText.includes("signal") || lowerText.includes("entry") || lowerText.includes("trade")){
-      replyText = pick(["following this 📈", "already in", "looks solid", "agree with the setup", "I'm watching this too"]);
-    } else if(lowerText.includes("testimonial") || lowerText.includes("proof") || lowerText.includes("withdrawal") || lastAIMessage.imageUrl){
-      replyText = pick(["nice! keep it up", "love to see it", "inspiring", "motivating", "this is the way"]);
-    } else {
-      replyText = pick(["exactly!", "well said", "facts 💯", "this 👆", "couldn't agree more", "🔥🔥", "for real", "no cap"]);
-    }
-    
+    const replyText = buildReplyText(lastAIMessage.text);
     const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     const msgData = {
       senderName: persona.name,
@@ -732,7 +734,13 @@
       if(p && !(p.archetype === 'watcher' && Math.random() > 0.2)){
         const text = pick([`just closed ${pair} at ${percent} 🎯`,`${pair} hit TP ${percent}`,`easy ${percent} on ${pair}`]);
         const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-        if(chatAPI.addIncomingMessage) chatAPI.addIncomingMessage({ senderName: p.name, senderAvatar: p.avatar, text, time: timeStr, personaId: p.id, messageType: MessageType.RESULT });
+        if(chatAPI.addIncomingMessage) {
+          const el = chatAPI.addIncomingMessage({ senderName: p.name, senderAvatar: p.avatar, text, time: timeStr, personaId: p.id, messageType: MessageType.RESULT });
+          if (el) {
+            recentMessages.push({ id: p.id+'_'+Date.now(), personaId: p.id, senderName: p.name, text, element: el });
+            if(recentMessages.length>30) recentMessages.shift();
+          }
+        }
         lastPersonaId = p.id; lastMessageType = MessageType.RESULT;
         return;
       }
@@ -785,7 +793,7 @@
   setInterval(syncSimulationState, 1000);
   syncSimulationState();
 
-  window.AIPersonaSimulator = { isActive: ()=>simulationActive, getPersonas: ()=>personas };
+  window.AIPersonaSimulator = { isActive: ()=>simulationActive, getPersonas: ()=>personas, injectTradeResult: ()=>injectTradeResult() };
 
   // ====================== V4: MEMORY & PERSISTENCE ======================
   const STORAGE_KEY = "ai_chat_history_v4";
