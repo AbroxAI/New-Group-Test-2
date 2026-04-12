@@ -1,5 +1,5 @@
-// ====================== AI PERSONA ENGINE v6.3 (Final) ======================
-// 450+ personas · Realistic avatars · Archetypes · AI-to-AI reply previews only
+// ====================== AI PERSONA ENGINE v6.4 (Final) ======================
+// 450+ personas · Realistic avatars · Archetypes · AI-to-AI reply previews
 // Local testimonial images (20) with duplicate avoidance · Full expanded phrase banks
 // ============================================================================
 
@@ -16,7 +16,7 @@
     MAX_BURST_MESSAGES: 5,
     ENABLE_LOGGING: true,
     WATCHER_ACTIVITY_PENALTY: 0.7,
-    REPLY_CHANCE: 0.35   // moderate reply chance
+    REPLY_CHANCE: 0.50
   };
 
   const MessageType = {
@@ -164,7 +164,7 @@
 
   initTestimonialRotation();
 
-  // ---------- EXPANDED PHRASE BANKS (many new entries) ----------
+  // ---------- EXPANDED PHRASE BANKS ----------
   const globalPhraseBank = {
     question: [
       "how do you enter this trade?", "is this signal safe?", "what timeframe?",
@@ -639,14 +639,14 @@
 
   let activeCluster = null;
 
-  // ========== ENHANCED REPLY FUNCTION: reply preview only for AI-to-AI ==========
+  // ========== REPLY FUNCTION – prioritises AI targets, uses reply preview for AI-to-AI ==========
   function maybeSendReply(){
     if(!recentMessages.length || Math.random() > CONFIG.REPLY_CHANCE) return false;
     
-    const candidates = recentMessages.filter(m => m.personaId !== lastPersonaId);
+    let candidates = recentMessages.filter(m => m.personaId !== lastPersonaId);
     if(candidates.length === 0) return false;
     
-    // Score candidates (priority for questions, testimonials, results)
+    // Score: extra weight for AI messages to encourage AI-to-AI replies
     const scored = candidates.map(msg => {
       let score = 1;
       const lower = msg.text.toLowerCase();
@@ -656,6 +656,7 @@
       if(lower.includes('loss') || lower.includes('lost') || lower.includes('stop')) score += 2;
       if(lower.includes('signal') || lower.includes('entry') || lower.includes('trade')) score += 1;
       if(msg.imageUrl) score += 2;
+      if(msg.personaId !== 'user') score += 5;  // boost AI messages
       return { msg, score };
     });
     scored.sort((a,b) => b.score - a.score);
@@ -665,10 +666,9 @@
     const persona = pickDifferentPersona();
     if(!persona) return false;
     
-    // Determine if target is from user
     const isTargetUser = (target.personaId === 'user');
     
-    // Generate contextual reply text
+    // Contextual reply text
     let replyText = "";
     const lowerText = target.text.toLowerCase();
     if(lowerText.includes("win") || lowerText.includes("profit") || lowerText.includes("%") || lowerText.includes("tp")){
@@ -687,7 +687,6 @@
     
     const now = new Date(); const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     
-    // Send message with replyTo ONLY if target is NOT the user
     const msgData = {
       senderName: persona.name,
       senderAvatar: persona.avatar,
@@ -695,6 +694,7 @@
       time: timeStr,
       personaId: persona.id
     };
+    // Add reply preview only if target is another AI (not user)
     if(!isTargetUser) {
       msgData.replyTo = { 
         senderName: target.senderName, 
@@ -828,5 +828,5 @@
     log(`User message added: ${msg.text}`);
   };
 
-  log(`🤖 AI Persona Engine v6.3 loaded with ${personas.length} personas. AI-to-AI replies use reply preview bar; user replies are simple. Reply chance: ${CONFIG.REPLY_CHANCE*100}%.`);
+  log(`🤖 AI Persona Engine v6.4 loaded with ${personas.length} personas. AI-to-AI replies prioritised (+5 score) and use reply preview bar. Reply chance: ${CONFIG.REPLY_CHANCE*100}%.`);
 })();
