@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* ========== FULL ORIGINAL STYLES ========== */
+    /* ========== FULL ORIGINAL STYLES (same as before – kept for brevity) ========== */
     :root{
       --bg:#ebf1fa; --card:#ffffff; --ink:#1f2633; --muted:#7f8794;
       --blue:#2e9fe8; --blue-dark:#24263d; --green:#4ab54d; --yellow:#f3bf23;
@@ -59,7 +59,7 @@
     }
     .flag-round img{width:100%;height:100%;object-fit:cover;display:block;}
 
-    /* ---------- CURRENCY & SIGNAL UI ---------- */
+    /* ---------- CURRENCY & SIGNAL UI (unchanged) ---------- */
     .currency-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:11px 0 7px;padding-bottom:2px;}
     .currency-list{display:flex;gap:9px;align-items:center;min-width:max-content;}
     .currency-pill{
@@ -600,7 +600,7 @@
       margin-top: 16px;
     }
 
-    /* ---------- UNVERIFIED CHAT MODAL (for user trying to send message) ---------- */
+    /* ---------- UNVERIFIED CHAT MODAL (strong instruction, no wallet) ---------- */
     .unverified-modal {
       position: fixed;
       top: 0;
@@ -621,7 +621,7 @@
       opacity: 1;
     }
 
-    /* ---------- PROFILE MODAL (for AI personas) ---------- */
+    /* ---------- PROFILE MODAL ---------- */
     .profile-modal-overlay {
       position: fixed;
       top: 0;
@@ -671,23 +671,27 @@
       font-weight: 800;
       margin-bottom: 4px;
     }
-    .profile-level {
+    .profile-level-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
       font-size: 13px;
+    }
+    .profile-level {
       color: #2f98e5;
       font-weight: 600;
-      margin-bottom: 8px;
     }
     .profile-status {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       background: #ecfdf3;
       color: #1e7a3b;
-      padding: 4px 12px;
+      padding: 2px 8px;
       border-radius: 40px;
-      font-size: 12px;
       font-weight: 600;
-      margin-bottom: 16px;
     }
     .profile-stats {
       background: #f8fafc;
@@ -752,7 +756,7 @@
 </head>
 <body>
 <div class="app" id="appContainer">
-  <!-- HOME PAGE -->
+  <!-- HOME PAGE (unchanged) -->
   <div id="homePage" class="page">
     <div class="home-hero">
       <div class="home-top">
@@ -967,31 +971,25 @@
   </div>
 </div>
 
-<!-- UNVERIFIED CHAT MODAL (when user tries to send a message) -->
+<!-- UNVERIFIED CHAT MODAL (strong instruction, no wallet address) -->
 <div class="unverified-modal" id="unverifiedModal">
   <div class="modal-container">
     <div class="modal-icon">
-      <i data-lucide="shield-check" class="w-10 h-10 text-green-500"></i>
+      <i data-lucide="shield-alert" class="w-10 h-10 text-amber-500"></i>
     </div>
     <div class="modal-title">Verification Required</div>
-    <div class="modal-message">
-      You need to verify your account to chat.<br>
-      Send <strong>$5 USDT (TRC20)</strong> to the address below to activate:
+    <div class="modal-message" style="font-weight: 500; margin-bottom: 20px;">
+      You must be verified to chat with other members in this community.<br><br>
+      Please contact support to complete your verification.
     </div>
-    <div class="wallet-address" id="unverifiedWalletAddress">TY23RUXeNaibpnTnvxxu18qiqtMpDws6yB</div>
-    <button class="copy-btn" id="copyUnverifiedWalletBtn">📋 Copy Address</button>
-    <button class="paid-btn" id="unverifiedPaidBtn">✅ I have paid</button>
-    <div id="unverifiedPaymentStatus" class="payment-status"></div>
-    <div id="unverifiedPaymentFailedMsg" class="payment-failed" style="display:none;">
-      ⚠️ Payment verification failed. Please contact support or try again.
-      <button class="modal-support-btn" id="unverifiedPaymentSupportBtn" style="margin-top:10px;">Contact Support</button>
-      <button class="modal-close-btn" id="unverifiedRetryBtn" style="margin-top:8px;">Retry</button>
-    </div>
+    <button class="modal-support-btn" id="unverifiedModalSupportBtn" style="background:#2f98e5; color:white; padding:12px; border-radius:40px; width:100%; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;">
+      <i data-lucide="send" class="w-4 h-4"></i> Contact Support
+    </button>
     <button class="modal-close-btn" id="closeUnverifiedModalBtn" style="margin-top:12px;">Close</button>
   </div>
 </div>
 
-<!-- PROFILE MODAL (for AI personas) -->
+<!-- PROFILE MODAL -->
 <div class="profile-modal-overlay" id="profileModal">
   <div class="profile-modal-container" id="profileModalContent">
     <!-- Filled dynamically -->
@@ -1058,9 +1056,9 @@
     function updateClock(){ document.getElementById('currentTime').innerText = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
     setInterval(updateClock,1000); setInterval(updateAccuracy,60000); updateClock(); updateAccuracy(); renderSignal();
 
-    // ========== SUPPORT FUNCTION ==========
+    // ========== SUPPORT FUNCTION (all support buttons use @po_inside_support) ==========
     function contactSupport() {
-      window.open('https://t.me/your_support_username', '_blank');
+      window.open('https://t.me/po_inside_support', '_blank');
     }
 
     // ========== PLAN & PAYMENT MODAL (for signal activation) ==========
@@ -1141,57 +1139,20 @@
     planModal.addEventListener('click', (e) => { if (e.target === planModal) closePlanModal(); });
     paymentModal.addEventListener('click', (e) => { if (e.target === paymentModal) closePaymentModal(); });
 
-    // ========== UNVERIFIED CHAT MODAL ==========
+    // ========== UNVERIFIED CHAT MODAL (strong instruction, no wallet) ==========
     const unverifiedModal = document.getElementById('unverifiedModal');
-    const copyUnverifiedWalletBtn = document.getElementById('copyUnverifiedWalletBtn');
-    const unverifiedPaidBtn = document.getElementById('unverifiedPaidBtn');
-    const unverifiedPaymentStatus = document.getElementById('unverifiedPaymentStatus');
-    const unverifiedPaymentFailedMsg = document.getElementById('unverifiedPaymentFailedMsg');
-    const unverifiedPaymentSupportBtn = document.getElementById('unverifiedPaymentSupportBtn');
-    const unverifiedRetryBtn = document.getElementById('unverifiedRetryBtn');
+    const unverifiedModalSupportBtn = document.getElementById('unverifiedModalSupportBtn');
     const closeUnverifiedModalBtn = document.getElementById('closeUnverifiedModalBtn');
-    const unverifiedWalletAddressSpan = document.getElementById('unverifiedWalletAddress');
-    let unverifiedPaymentTimeout = null;
-
     function openUnverifiedModal() { unverifiedModal.classList.add('active'); }
     function closeUnverifiedModal() { unverifiedModal.classList.remove('active'); }
-
-    copyUnverifiedWalletBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(unverifiedWalletAddressSpan.innerText);
-      copyUnverifiedWalletBtn.innerText = '✅ Copied!';
-      setTimeout(() => { copyUnverifiedWalletBtn.innerText = '📋 Copy Address'; }, 2000);
-    });
-
-    unverifiedPaidBtn.addEventListener('click', () => {
-      if (unverifiedPaymentTimeout) return;
-      unverifiedPaidBtn.disabled = true;
-      unverifiedPaidBtn.innerText = '⏳ Verifying payment...';
-      unverifiedPaymentStatus.innerHTML = 'Please wait, verifying transaction...';
-      unverifiedPaymentTimeout = setTimeout(() => {
-        unverifiedPaidBtn.disabled = false;
-        unverifiedPaidBtn.innerText = '✅ I have paid';
-        unverifiedPaymentStatus.innerHTML = '';
-        unverifiedPaymentFailedMsg.style.display = 'block';
-      }, 6000);
-    });
-
-    unverifiedRetryBtn.addEventListener('click', () => {
-      unverifiedPaymentFailedMsg.style.display = 'none';
-      if (unverifiedPaymentTimeout) { clearTimeout(unverifiedPaymentTimeout); unverifiedPaymentTimeout = null; }
-      unverifiedPaidBtn.disabled = false;
-      unverifiedPaidBtn.innerText = '✅ I have paid';
-      unverifiedPaymentStatus.innerHTML = '';
-    });
-    unverifiedPaymentSupportBtn.addEventListener('click', contactSupport);
+    unverifiedModalSupportBtn.onclick = () => { contactSupport(); closeUnverifiedModal(); };
     closeUnverifiedModalBtn.onclick = closeUnverifiedModal;
     unverifiedModal.addEventListener('click', (e) => { if (e.target === unverifiedModal) closeUnverifiedModal(); });
 
     // ========== CHAT LOGIC (full persistence, reply preview, message IDs) ==========
-    // (This is the same as the previous working version – included for completeness)
     const ROOM_STORAGE_PREFIX = 'pocketOption_chat_messages_';
     const LEGACY_STORAGE_KEY = 'pocketOption_chat_messages';
     let isHydratingRoom = false;
-    let messageCounter = 0;
     window.messageMap = window.messageMap || {};
 
     const appContainer = document.getElementById('appContainer'), chatRoomShell = document.getElementById('chatRoomShell'),
@@ -1336,7 +1297,7 @@
         replyPreviewBar.style.display = 'flex';
       });
       
-      // Also make avatar/name clickable to show profile (for AI messages)
+      // Make avatar and name clickable to show profile (for AI messages)
       const nameSpan = bubble.querySelector('.chat-sender-name');
       if (nameSpan && msgData.personaId && msgData.personaId !== 'user' && msgData.personaId !== 'system') {
         nameSpan.style.cursor = 'pointer';
@@ -1363,19 +1324,12 @@
     const profileModalContent = document.getElementById('profileModalContent');
     
     function showProfile(personaData) {
-      // Generate realistic stats based on persona type
-      const archetype = personaData.archetype || (personaData.intent === 'learner' ? 'beginner' : (personaData.intent === 'authority' ? 'experienced' : 'amateur'));
+      // Determine level and archetype
       let level = 'Beginner';
-      let trades = 12;
-      let winRate = 45;
-      let turnover = 120;
-      let profit = -15;
-      let maxTrade = 8;
-      let minTrade = 5;
-      let maxProfitTrade = 12;
-      
-      // Deterministic but realistic numbers
+      let trades = 12, winRate = 45, turnover = 120, profit = -15, maxTrade = 8, minTrade = 5, maxProfitTrade = 12;
+      const archetype = personaData.archetype || (personaData.intent === 'learner' ? 'beginner' : (personaData.intent === 'authority' ? 'experienced' : 'amateur'));
       const seed = (personaData.id || personaData.senderName).split('').reduce((a,b)=>a+b.charCodeAt(0),0);
+      
       if (archetype === 'amateur') {
         level = 'Amateur';
         trades = 35 + (seed % 30);
@@ -1413,8 +1367,10 @@
           ${personaData.senderAvatar ? `<img src="${personaData.senderAvatar}" onerror="this.parentElement.innerHTML='<div style=\'font-size:40px;\'>${escapeHtml(personaData.senderName.charAt(0))}</div>'">` : `<div style="font-size:40px;">${escapeHtml(personaData.senderName.charAt(0))}</div>`}
         </div>
         <div class="profile-name">${escapeHtml(personaData.senderName)}</div>
-        <div class="profile-level">${level}</div>
-        <div class="profile-status"><i data-lucide="circle" class="w-3 h-3 text-green-500 fill-green-500"></i> Online</div>
+        <div class="profile-level-status">
+          <span class="profile-level">${level}</span>
+          <span class="profile-status"><i data-lucide="circle" class="w-3 h-3 fill-green-500"></i> Online</span>
+        </div>
         <div class="profile-stats">
           <div class="stat-row"><span class="stat-label">Trades</span><span class="stat-value">${trades}</span></div>
           <div class="stat-row"><span class="stat-label">Profitable trades</span><span class="stat-value">${winRate}%</span></div>
