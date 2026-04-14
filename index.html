@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* ========== FULL ORIGINAL STYLES (same as before – kept for brevity) ========== */
+    /* ========== FULL ORIGINAL STYLES (unchanged) ========== */
     :root{
       --bg:#ebf1fa; --card:#ffffff; --ink:#1f2633; --muted:#7f8794;
       --blue:#2e9fe8; --blue-dark:#24263d; --green:#4ab54d; --yellow:#f3bf23;
@@ -59,7 +59,7 @@
     }
     .flag-round img{width:100%;height:100%;object-fit:cover;display:block;}
 
-    /* ---------- CURRENCY & SIGNAL UI (unchanged) ---------- */
+    /* ---------- CURRENCY & SIGNAL UI ---------- */
     .currency-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:11px 0 7px;padding-bottom:2px;}
     .currency-list{display:flex;gap:9px;align-items:center;min-width:max-content;}
     .currency-pill{
@@ -600,15 +600,15 @@
       margin-top: 16px;
     }
 
-    /* ---------- UNVERIFIED CHAT MODAL (strong instruction, no wallet) ---------- */
+    /* ---------- UNVERIFIED CHAT MODAL (fixed visibility) ---------- */
     .unverified-modal {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 220;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -619,6 +619,56 @@
     .unverified-modal.active {
       visibility: visible;
       opacity: 1;
+    }
+    .unverified-modal .modal-container {
+      background: white;
+      max-width: 320px;
+      width: 85%;
+      border-radius: 28px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+    }
+    .unverified-modal .modal-icon {
+      margin-bottom: 16px;
+    }
+    .unverified-modal .modal-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #1f2937;
+    }
+    .unverified-modal .modal-message {
+      font-size: 15px;
+      color: #4b5563;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .unverified-modal .modal-support-btn {
+      background: #2f98e5;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .unverified-modal .modal-close-btn {
+      background: #e5e7eb;
+      color: #374151;
+      border: none;
+      padding: 10px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
     }
 
     /* ---------- PROFILE MODAL ---------- */
@@ -971,7 +1021,7 @@
   </div>
 </div>
 
-<!-- UNVERIFIED CHAT MODAL (strong instruction, no wallet address) -->
+<!-- UNVERIFIED CHAT MODAL (fixed – strong instruction, no wallet) -->
 <div class="unverified-modal" id="unverifiedModal">
   <div class="modal-container">
     <div class="modal-icon">
@@ -982,10 +1032,10 @@
       You must be verified to chat with other members in this community.<br><br>
       Please contact support to complete your verification.
     </div>
-    <button class="modal-support-btn" id="unverifiedModalSupportBtn" style="background:#2f98e5; color:white; padding:12px; border-radius:40px; width:100%; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;">
+    <button class="modal-support-btn" id="unverifiedModalSupportBtn">
       <i data-lucide="send" class="w-4 h-4"></i> Contact Support
     </button>
-    <button class="modal-close-btn" id="closeUnverifiedModalBtn" style="margin-top:12px;">Close</button>
+    <button class="modal-close-btn" id="closeUnverifiedModalBtn">Close</button>
   </div>
 </div>
 
@@ -1139,7 +1189,7 @@
     planModal.addEventListener('click', (e) => { if (e.target === planModal) closePlanModal(); });
     paymentModal.addEventListener('click', (e) => { if (e.target === paymentModal) closePaymentModal(); });
 
-    // ========== UNVERIFIED CHAT MODAL (strong instruction, no wallet) ==========
+    // ========== UNVERIFIED CHAT MODAL ==========
     const unverifiedModal = document.getElementById('unverifiedModal');
     const unverifiedModalSupportBtn = document.getElementById('unverifiedModalSupportBtn');
     const closeUnverifiedModalBtn = document.getElementById('closeUnverifiedModalBtn');
