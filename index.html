@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* ========== FULL ORIGINAL STYLES (unchanged) ========== */
+    /* ========== FULL ORIGINAL STYLES ========== */
     :root{
       --bg:#ebf1fa; --card:#ffffff; --ink:#1f2633; --muted:#7f8794;
       --blue:#2e9fe8; --blue-dark:#24263d; --green:#4ab54d; --yellow:#f3bf23;
@@ -298,7 +298,7 @@
       display:flex;align-items:center;justify-content:center;color:#9aa3b2;flex:0 0 auto;
     }
 
-    /* ---------- CHAT ROOM SHELL (unchanged) ---------- */
+    /* ---------- CHAT ROOM SHELL ---------- */
     .chat-room-shell{
       position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:#fff;
       display:flex;flex-direction:column;padding:12px 12px 0;max-width:430px;margin:0 auto;
@@ -399,7 +399,7 @@
     .composer-input-wrap input{width:100%;height:100%;border:none;outline:none;background:transparent;font-size:14px;color:#1f2633;}
     .composer-input-wrap input::placeholder{color:#98a2b3;}
 
-    /* ---------- BOTTOM NAV (unchanged) ---------- */
+    /* ---------- BOTTOM NAV ---------- */
     .bottom-nav{
       position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e5eaf2;
       box-shadow:0 -2px 10px rgba(15,23,42,.04);z-index:40;padding-bottom:env(safe-area-inset-bottom);
@@ -417,7 +417,7 @@
     svg.lucide,i[data-lucide] svg{stroke-width:1.7;}
     .text-blue-icon,.text-blue-icon svg{color:#2fa5ef;stroke:#2fa5ef;}
 
-    /* ---------- FLOATING CONTACT SUPPORT PILL (renamed) ---------- */
+    /* ---------- FLOATING CONTACT SUPPORT PILL ---------- */
     .contact-support {
       position: fixed;
       bottom: 90px;
@@ -447,8 +447,8 @@
       height: 20px;
     }
 
-    /* ---------- ACTIVATION MODAL (for signals) ---------- */
-    .modal-overlay {
+    /* ---------- PLAN SELECTION MODAL (replaces old activation modal) ---------- */
+    .plan-modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
@@ -463,72 +463,76 @@
       opacity: 0;
       transition: visibility 0.2s, opacity 0.2s;
     }
-    .modal-overlay.active {
+    .plan-modal-overlay.active {
       visibility: visible;
       opacity: 1;
     }
-    .modal-container {
+    .plan-modal-container {
       background: white;
-      max-width: 320px;
-      width: 85%;
+      max-width: 360px;
+      width: 90%;
       border-radius: 28px;
-      padding: 24px 20px;
+      padding: 20px;
       text-align: center;
       box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+      max-height: 85vh;
+      overflow-y: auto;
     }
-    .modal-icon {
-      background: #fef3c7;
-      width: 64px;
-      height: 64px;
-      border-radius: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 16px;
+    .plan-header {
+      margin-bottom: 16px;
     }
-    .modal-title {
-      font-size: 22px;
+    .plan-title {
+      font-size: 24px;
       font-weight: 800;
-      margin-bottom: 12px;
       color: #1f2937;
     }
-    .modal-message {
-      font-size: 15px;
-      color: #4b5563;
-      line-height: 1.5;
-      margin-bottom: 24px;
-    }
-    .modal-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .modal-support-btn {
-      background: #2f98e5;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 40px;
+    .plan-fomo {
+      font-size: 14px;
+      color: #ef4444;
       font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .modal-close-btn {
-      background: #e5e7eb;
-      color: #374151;
-      border: none;
-      padding: 10px;
+      margin: 8px 0;
+      background: #fee2e2;
+      padding: 6px 12px;
       border-radius: 40px;
-      font-weight: 600;
+      display: inline-block;
+    }
+    .countdown {
+      font-size: 28px;
+      font-weight: 800;
+      color: #2f98e5;
+      margin: 8px 0;
+    }
+    .plan-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 14px;
+      margin-bottom: 12px;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    .plan-card:hover {
+      border-color: #2f98e5;
+      background: #eff6ff;
+      transform: scale(1.01);
+    }
+    .plan-name {
+      font-weight: 800;
+      font-size: 18px;
+    }
+    .plan-price {
+      font-weight: 700;
+      color: #2f98e5;
+      font-size: 22px;
+    }
+    .plan-desc {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
     }
 
-    /* ---------- NEW MODAL FOR UNVERIFIED CHAT USER ---------- */
-    .unverified-modal {
+    /* ---------- PAYMENT MODAL ---------- */
+    .payment-modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
@@ -543,10 +547,80 @@
       opacity: 0;
       transition: visibility 0.2s, opacity 0.2s;
     }
+    .payment-modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .payment-modal-container {
+      background: white;
+      max-width: 340px;
+      width: 90%;
+      border-radius: 28px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .wallet-address {
+      background: #f1f5f9;
+      padding: 12px;
+      border-radius: 12px;
+      font-family: monospace;
+      font-size: 14px;
+      word-break: break-all;
+      margin: 16px 0;
+    }
+    .copy-btn {
+      background: #2f98e5;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+    .paid-btn {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 40px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+    }
+    .payment-status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #64748b;
+    }
+    .payment-failed {
+      background: #fee2e2;
+      padding: 12px;
+      border-radius: 16px;
+      margin-top: 16px;
+    }
+
+    /* ---------- MODAL FOR UNVERIFIED CHAT USER ---------- */
+    .unverified-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 220;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.2s;
+    }
     .unverified-modal.active {
       visibility: visible;
       opacity: 1;
     }
+
     @media (max-width:390px){
       .app{padding-left:8px;padding-right:8px;}
       .brand-text{font-size:15px;}
@@ -666,7 +740,7 @@
     </div>
   </div>
 
-  <!-- CHAT PAGE (list) – only General Chat remains -->
+  <!-- CHAT PAGE (list) -->
   <div id="chatPage" class="page">
     <div class="chat-section-label">Choose a chat</div>
     <div class="chat-list" id="chatList">
@@ -689,7 +763,7 @@
   <div id="referralsPage" class="page">
     <div class="page-header-card referrals-header"><div><div class="page-kicker">Referral rewards</div><h2 class="page-title">Refer and Earn</h2><p class="page-text">Invite new users and earn up to 20% commission on referrals, even before activation.</p></div><i data-lucide="users" class="w-10 h-10 text-sky-500"></i></div>
     <div class="ref-grid"><div class="ref-stat-card"><span class="ref-stat-label">Invites</span><span class="ref-stat-value">0</span></div><div class="ref-stat-card"><span class="ref-stat-label">Active</span><span class="ref-stat-value">0</span></div><div class="ref-stat-card"><span class="ref-stat-label">Commission</span><span class="ref-stat-value">0%</span></div><div class="ref-stat-card"><span class="ref-stat-label">Rank</span><span class="ref-stat-value">#0</span></div></div>
-    <div class="invite-card"><div class="invite-label">Your invite link</div><div class="invite-link">pocketoptioninside.com/invite/0LVL</div><button class="invite-btn">Copy referral link</button></div>
+    <div class="invite-card"><div class="invite-label">Your invite link</div><div class="invite-link">@pocketoptioninside_robot</div><button class="invite-btn">Copy referral link</button></div>
     <div class="page-section-title">Referral activity</div><div class="activity-list"><div class="activity-item"><span>No referral activity yet</span><span>0</span></div></div>
   </div>
 
@@ -716,7 +790,13 @@
     <div class="chat-room-header-center"><div class="chat-room-title-row"><div class="chat-room-title" id="chatRoomName">General Chat</div></div><div class="chat-room-subtitle" id="chatRoomStatus">Community</div></div>
     <div class="chat-room-dots" id="chatMenuBtn"><i data-lucide="more-vertical"></i></div>
   </div>
-  <div class="reply-preview-bar" id="replyPreviewBar" style="display:none;"><div class="reply-preview-content"><div class="reply-preview-label">Replying to</div><div class="reply-preview-text" id="replyPreviewText"></div></div><button class="reply-preview-close" id="replyPreviewCloseBtn"><i data-lucide="x"></i></button></div>
+  <div class="reply-preview-bar" id="replyPreviewBar" style="display:none;">
+    <div class="reply-preview-content">
+      <div class="reply-preview-label">Replying to <span id="replyPreviewSender"></span></div>
+      <div class="reply-preview-text" id="replyPreviewText"></div>
+    </div>
+    <button class="reply-preview-close" id="replyPreviewCloseBtn"><i data-lucide="x"></i></button>
+  </div>
   <div class="chat-feed" id="chatMessages"></div>
   <div class="unread-pill" id="unreadPill" style="display:none;"><i data-lucide="arrow-down"></i><span id="unreadCount">1 new message</span></div>
   <div class="chat-composer">
@@ -728,32 +808,62 @@
   <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
 </div>
 
-<!-- FLOATING CONTACT SUPPORT PILL (renamed) -->
+<!-- FLOATING CONTACT SUPPORT PILL -->
 <button class="contact-support" id="contactSupportBtn">
   <i data-lucide="send"></i> Contact Support
 </button>
 
-<!-- ACTIVATION MODAL (for signals) -->
-<div class="modal-overlay" id="activationModal">
-  <div class="modal-container">
-    <div class="modal-icon">
-      <i data-lucide="alert-triangle" class="w-8 h-8 text-amber-500"></i>
+<!-- PLAN SELECTION MODAL (replaces old activation modal) -->
+<div class="plan-modal-overlay" id="planModal">
+  <div class="plan-modal-container">
+    <div class="plan-header">
+      <div class="plan-title">🚀 Choose Your Activation</div>
+      <div class="plan-fomo">⚠️ Only 28 spots left – Final window closes May 1st ⚠️</div>
+      <div class="countdown" id="countdownTimer">--d --h --m</div>
     </div>
-    <div class="modal-title">Activation Required</div>
-    <div class="modal-message">
-      You need to activate your PRO account to receive real signals.<br><br>
-      Please contact support via Telegram to complete activation.
+    <div class="plan-card" data-plan="weekly" data-price="99">
+      <div class="plan-name">🔥 Most Popular — WEEKLY ACCESS</div>
+      <div class="plan-price">$99</div>
+      <div class="plan-desc">Safe, consistent and perfect for growth-minded traders.</div>
     </div>
-    <div class="modal-buttons">
-      <button class="modal-support-btn" id="modalSupportBtn">
-        <i data-lucide="send" class="w-4 h-4"></i> Contact Support
-      </button>
-      <button class="modal-close-btn" id="modalCloseBtn">Close</button>
+    <div class="plan-card" data-plan="trial" data-price="35">
+      <div class="plan-name">💰 24H Trial</div>
+      <div class="plan-price">$35</div>
+      <div class="plan-desc">Test results immediately with low commitment.</div>
     </div>
+    <div class="plan-card" data-plan="vip" data-price="299">
+      <div class="plan-name">🚀 VIP Monthly</div>
+      <div class="plan-price">$299</div>
+      <div class="plan-desc">For traders who want the highest accuracy and speed.</div>
+    </div>
+    <div class="plan-card" data-plan="lifetime" data-price="749">
+      <div class="plan-name">👑 Lifetime</div>
+      <div class="plan-price">$749</div>
+      <div class="plan-desc">Pay once. Trade forever. No renewals. No limits.</div>
+    </div>
+    <button class="modal-close-btn" id="closePlanModalBtn" style="margin-top:8px;">Close</button>
   </div>
 </div>
 
-<!-- NEW MODAL FOR UNVERIFIED CHAT USER -->
+<!-- PAYMENT MODAL -->
+<div class="payment-modal-overlay" id="paymentModal">
+  <div class="payment-modal-container">
+    <div class="modal-title">💳 Complete Payment</div>
+    <div class="modal-message" style="margin-bottom:8px;">Send exact amount in USDT (TRC20)</div>
+    <div class="wallet-address" id="walletAddress">TQm9FjZ5kH3xLp8Qr2WnXyV7uC4bN6aM1e</div>
+    <button class="copy-btn" id="copyWalletBtn">📋 Copy Address</button>
+    <button class="paid-btn" id="paidBtn">✅ I have paid</button>
+    <div id="paymentStatus" class="payment-status"></div>
+    <div id="paymentFailedMsg" class="payment-failed" style="display:none;">
+      ⚠️ Payment verification failed. Please contact support or try again.
+      <button class="modal-support-btn" id="paymentSupportBtn" style="margin-top:10px;">Contact Support</button>
+      <button class="modal-close-btn" id="retryPaymentBtn" style="margin-top:8px;">Retry</button>
+    </div>
+    <button class="modal-close-btn" id="closePaymentModalBtn" style="margin-top:12px;">Close</button>
+  </div>
+</div>
+
+<!-- MODAL FOR UNVERIFIED CHAT USER (unchanged) -->
 <div class="unverified-modal" id="unverifiedModal">
   <div class="modal-container">
     <div class="modal-icon">
@@ -830,75 +940,40 @@
     function updateClock(){ document.getElementById('currentTime').innerText = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
     setInterval(updateClock,1000); setInterval(updateAccuracy,60000); updateClock(); updateAccuracy(); renderSignal();
 
-    // ========== MODAL FOR GET SIGNAL BUTTON ==========
-    const getSignalBtn = document.getElementById('getSignalBtn');
-    const modalOverlay = document.getElementById('activationModal');
-    const modalSupportBtn = document.getElementById('modalSupportBtn');
-    const modalCloseBtn = document.getElementById('modalCloseBtn');
-    const contactSupportBtn = document.getElementById('contactSupportBtn');
-
-    function openModal() {
-      modalOverlay.classList.add('active');
-    }
-    function closeModal() {
-      modalOverlay.classList.remove('active');
-    }
-    function contactSupport() {
-      // Replace with your actual Telegram contact link
-      window.open('https://t.me/your_support_username', '_blank');
-    }
-
-    getSignalBtn.onclick = (e) => {
-      e.preventDefault();
-      openModal();
-    };
-    modalSupportBtn.onclick = () => {
-      contactSupport();
-      closeModal();
-    };
-    modalCloseBtn.onclick = closeModal;
-    modalOverlay.addEventListener('click', (e) => {
-      if (e.target === modalOverlay) closeModal();
-    });
-    contactSupportBtn.onclick = () => {
-      contactSupport();
-    };
-
-    // ========== CHAT LOGIC (with only general chat and user message blocking) ==========
+    // ========== CHAT LOGIC (full persistence, reply preview, message IDs) ==========
     const ROOM_STORAGE_PREFIX = 'pocketOption_chat_messages_';
     const LEGACY_STORAGE_KEY = 'pocketOption_chat_messages';
     let isHydratingRoom = false;
+    let messageCounter = 0;
+    window.messageMap = window.messageMap || {};
 
     const appContainer = document.getElementById('appContainer'), chatRoomShell = document.getElementById('chatRoomShell'),
           chatMessages = document.getElementById('chatMessages'), chatInput = document.getElementById('chatInput'),
           chatSendBtn = document.getElementById('chatSendBtn'), chatSendIconWrap = document.getElementById('chatSendIconWrap'),
           chatBackBtn = document.getElementById('chatBackBtn'), chatRoomName = document.getElementById('chatRoomName'),
           chatRoomStatus = document.getElementById('chatRoomStatus'), chatGeneralBtn = document.getElementById('chatGeneralBtn'),
-          replyPreviewBar = document.getElementById('replyPreviewBar'), replyPreviewText = document.getElementById('replyPreviewText'),
-          replyPreviewCloseBtn = document.getElementById('replyPreviewCloseBtn'), unreadPill = document.getElementById('unreadPill'),
-          unreadCountSpan = document.getElementById('unreadCount'), galleryBtn = document.getElementById('galleryBtn'),
-          imageUploadInput = document.getElementById('imageUploadInput'), chatPreviewTime = document.getElementById('chatPreviewTime');
+          replyPreviewBar = document.getElementById('replyPreviewBar'), replyPreviewSender = document.getElementById('replyPreviewSender'),
+          replyPreviewText = document.getElementById('replyPreviewText'), replyPreviewCloseBtn = document.getElementById('replyPreviewCloseBtn'),
+          unreadPill = document.getElementById('unreadPill'), unreadCountSpan = document.getElementById('unreadCount'),
+          galleryBtn = document.getElementById('galleryBtn'), imageUploadInput = document.getElementById('imageUploadInput'),
+          chatPreviewTime = document.getElementById('chatPreviewTime');
 
     const chatRooms = {
-      general: { name:'General Chat', status:'Community', statusClass:'muted', starter:[ {side:'incoming',text:'Welcome to General Chat.',time:'3:08 PM'} ] }  // removed outgoing "Glad to be here"
+      general: { name:'General Chat', status:'Community', statusClass:'muted', starter:[ {side:'incoming',text:'Welcome to General Chat.',time:'3:08 PM'} ] }
     };
     let currentChatRoom = 'general', replyingToMessage = null, unreadMessages = 0, isUserAtBottom = true, pendingImage = null;
 
-    // Update chat preview time dynamically (current time)
-    function updateChatPreviewTime() {
-      if(chatPreviewTime) {
-        const now = new Date();
-        chatPreviewTime.innerText = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-      }
-    }
-    updateChatPreviewTime();
-    setInterval(updateChatPreviewTime, 60000);
-
     function roomStorageKey(roomKey) { return `${ROOM_STORAGE_PREFIX}${roomKey}`; }
+    function getColorFromString(str){ let hash=0; for(let i=0;i<str.length;i++) hash = str.charCodeAt(i)+((hash<<5)-hash); return `hsl(${Math.abs(hash)%360},70%,45%)`; }
+    function todayStickerText(){ return `Today • ${new Date().toLocaleDateString('en-GB')}`; }
+    function setComposerMode(){ const hasText = chatInput.value.trim().length>0; chatSendBtn.classList.toggle('is-send',hasText); chatSendIconWrap.innerHTML = hasText ? '<i data-lucide="send"></i>' : '<i data-lucide="mic"></i>'; lucide.createIcons(); }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
+    function updateChatPreviewTime() { if(chatPreviewTime) chatPreviewTime.innerText = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+    updateChatPreviewTime(); setInterval(updateChatPreviewTime, 60000);
 
     function saveMessagesToStorage() {
       if (isHydratingRoom) return;
-      if (!currentChatRoom) { console.warn('saveMessagesToStorage: no currentChatRoom'); return; }
+      if (!currentChatRoom) return;
       try {
         const messages = [];
         document.querySelectorAll('#chatMessages .chat-msg-row').forEach(row => {
@@ -924,39 +999,56 @@
           }
           messages.push({ side: isOutgoing ? 'outgoing' : 'incoming', senderName, text, time, imageUrl: image, tickStatus });
         });
-        const key = roomStorageKey(currentChatRoom);
-        localStorage.setItem(key, JSON.stringify(messages));
-        console.log(`✅ Saved ${messages.length} messages to ${key}`);
-      } catch(e) { console.error('saveMessagesToStorage error', e); }
+        localStorage.setItem(roomStorageKey(currentChatRoom), JSON.stringify(messages));
+      } catch(e) { console.error(e); }
     }
 
     function loadMessagesFromStorage(roomKey = currentChatRoom) {
       const key = roomStorageKey(roomKey);
       let stored = localStorage.getItem(key);
       if (!stored && roomKey === 'general') stored = localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (!stored) { console.log(`ℹ️ No stored messages for ${key}`); return; }
+      if (!stored) return;
       try {
         const messages = JSON.parse(stored);
-        console.log(`📥 Loading ${messages.length} messages from ${key}`);
-        for (let msg of messages) {
+        messages.forEach(msg => {
           if (msg.side === 'outgoing') {
             addMessageToFeed('outgoing', msg.text, msg.time, msg.tickStatus, msg.imageUrl, false);
           } else {
             buildIncomingMessage({ senderName: msg.senderName, text: msg.text, time: msg.time, imageUrl: msg.imageUrl }, false);
           }
-        }
+        });
         if (!localStorage.getItem(key)) localStorage.setItem(key, stored);
-      } catch(e) { console.warn('Could not load chat history', e); }
+      } catch(e) { console.warn(e); }
     }
 
-    function getColorFromString(str){ let hash=0; for(let i=0;i<str.length;i++) hash = str.charCodeAt(i)+((hash<<5)-hash); return `hsl(${Math.abs(hash)%360},70%,45%)`; }
-    function todayStickerText(){ return `Today • ${new Date().toLocaleDateString('en-GB')}`; }
-    function setComposerMode(){ const hasText = chatInput.value.trim().length>0; chatSendBtn.classList.toggle('is-send',hasText); chatSendIconWrap.innerHTML = hasText ? '<i data-lucide="send"></i>' : '<i data-lucide="mic"></i>'; lucide.createIcons(); }
-    function buildIncomingAvatar(){ return '<div class="chat-avatar-bubble"><i data-lucide="messages-square"></i></div>'; }
-    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
+    function addMessageToFeed(side, text, time, tickStatus=null, imageUrl=null, shouldSave = true){
+      const messageId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2,8);
+      const row = document.createElement('div'); row.className = `chat-msg-row ${side}`; row.id = messageId; row.dataset.messageId = messageId;
+      window.messageMap[messageId] = row;
+      row.__messageData = { id: messageId, senderName: side === 'outgoing' ? 'You' : 'Unknown', text: text };
+      const bubble = document.createElement('div'); bubble.className = `chat-bubble ${side}`;
+      let content = text;
+      if(imageUrl) content = `<img src="${imageUrl}" class="chat-image">` + (text?`<div style="margin-top:6px;">${text}</div>`:'');
+      if(side==='outgoing'){
+        bubble.innerHTML = `${content}<span class="chat-bubble-meta"><span class="chat-bubble-time">${time}</span><span class="chat-ticks ${tickStatus||'sent'}">${tickStatus==='seen'?'✓✓':(tickStatus==='delivered'?'✓✓':'✓')}</span></span>`;
+      } else {
+        bubble.innerHTML = `${content}<span class="chat-bubble-time" style="display:block;margin-top:6px;font-size:11px;opacity:.75;">${time}</span>`;
+      }
+      if(side==='incoming'){ const avatar = document.createElement('div'); avatar.className = 'chat-avatar-bubble'; avatar.innerHTML = '<i data-lucide="messages-square"></i>'; row.appendChild(avatar); }
+      row.appendChild(bubble);
+      chatMessages.appendChild(row);
+      if (shouldSave) saveMessagesToStorage();
+      return row;
+    }
 
     function buildIncomingMessage(msgData, shouldSave = true){
-      const row = document.createElement('div'); row.className = 'chat-msg-row incoming';
+      const messageId = msgData.id || ('msg_' + Date.now() + '_' + Math.random().toString(36).substr(2,8));
+      const parentId = msgData.parentId || msgData.replyTo?.messageId || null;
+      
+      const row = document.createElement('div'); row.className = 'chat-msg-row incoming'; row.id = messageId; row.dataset.messageId = messageId;
+      window.messageMap[messageId] = row;
+      row.__messageData = { id: messageId, senderName: msgData.senderName, text: msgData.text };
+
       const avatarDiv = document.createElement('div'); avatarDiv.className = 'chat-avatar-bubble';
       const isValidAvatarUrl = msgData.senderAvatar && (msgData.senderAvatar.startsWith('http') || msgData.senderAvatar.startsWith('assets/'));
       if(isValidAvatarUrl){
@@ -969,25 +1061,38 @@
       const bubble = document.createElement('div'); bubble.className = 'chat-bubble incoming';
       const nameColor = msgData.senderName==='Trade Result' ? '#2f98e5' : getColorFromString(msgData.senderName);
       let content = `<div class="chat-sender-name" style="color:${nameColor};">${escapeHtml(msgData.senderName)}</div>`;
-      if(msgData.replyTo && msgData.replyTo.senderName && msgData.replyTo.text){
+
+      if (parentId && window.messageMap[parentId] && window.messageMap[parentId].__messageData) {
+        const parent = window.messageMap[parentId].__messageData;
         content += `<div class="reply-preview-bar" style="margin-bottom:8px;background:#f0f4fa;border-left-color:#2f98e5;">
                       <div class="reply-preview-content">
-                        <div class="reply-preview-label">Replying to ${escapeHtml(msgData.replyTo.senderName)}</div>
-                        <div class="reply-preview-text">${escapeHtml(msgData.replyTo.text.substring(0, 60))}</div>
+                        <div class="reply-preview-label">Replying to ${escapeHtml(parent.senderName)}</div>
+                        <div class="reply-preview-text">${escapeHtml(parent.text.substring(0, 60))}</div>
                       </div>
                       <button class="reply-preview-close" onclick="this.closest('.reply-preview-bar')?.remove()">✕</button>
                     </div>`;
       }
+
       content += msgData.text;
       if(msgData.imageUrl) content += `<img src="${msgData.imageUrl}" class="chat-image" alt="testimonial">`;
       content += `<span class="chat-bubble-time" style="display:block;margin-top:6px;font-size:11px;opacity:.75;">${msgData.time}</span>`;
       bubble.innerHTML = content;
+
       row.appendChild(avatarDiv); row.appendChild(bubble);
+      
+      row.addEventListener('click', (e) => {
+        if(e.target.classList && e.target.classList.contains('reply-preview-close')) return;
+        replyingToMessage = row.__messageData;
+        replyPreviewSender.innerText = replyingToMessage.senderName;
+        replyPreviewText.innerText = replyingToMessage.text.substring(0, 60);
+        replyPreviewBar.style.display = 'flex';
+      });
+      
       chatMessages.appendChild(row);
       chatMessages.scrollTop = chatMessages.scrollHeight;
       if(!isUserAtBottom){ unreadMessages++; updateUnreadPill(); }
       if (shouldSave) saveMessagesToStorage();
-      return bubble;
+      return row;
     }
 
     function updateUnreadPill(){ if(unreadMessages>0 && !isUserAtBottom){ unreadCountSpan.textContent = unreadMessages===1?'1 new message':`${unreadMessages} new messages`; unreadPill.style.display='flex'; } else { unreadPill.style.display='none'; } }
@@ -995,88 +1100,27 @@
     chatMessages.addEventListener('scroll', ()=>{ const near = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 50; if(near){ unreadMessages=0; updateUnreadPill(); } isUserAtBottom=near; });
     unreadPill.addEventListener('click', scrollToBottom);
 
-    function addMessageToFeed(side, text, time, tickStatus=null, imageUrl=null, shouldSave = true){
-      const row = document.createElement('div'); row.className = `chat-msg-row ${side}`;
-      const bubble = document.createElement('div'); bubble.className = `chat-bubble ${side}`;
-      let content = text;
-      if(imageUrl) content = `<img src="${imageUrl}" class="chat-image">` + (text?`<div style="margin-top:6px;">${text}</div>`:'');
-      if(side==='outgoing'){
-        bubble.innerHTML = `${content}<span class="chat-bubble-meta"><span class="chat-bubble-time">${time}</span><span class="chat-ticks ${tickStatus||'sent'}">${tickStatus==='seen'?'✓✓':(tickStatus==='delivered'?'✓✓':'✓')}</span></span>`;
-      } else {
-        bubble.innerHTML = `${content}<span class="chat-bubble-time" style="display:block;margin-top:6px;font-size:11px;opacity:.75;">${time}</span>`;
-      }
-      if(side==='incoming'){
-        const avatar = document.createElement('div'); avatar.className = 'chat-avatar-bubble'; avatar.innerHTML = buildIncomingAvatar();
-        row.appendChild(avatar);
-      }
-      row.appendChild(bubble);
-      chatMessages.appendChild(row);
-      if (shouldSave) saveMessagesToStorage();
-      return bubble;
-    }
-
     function openChatRoom(roomKey){
       currentChatRoom = roomKey;
       window.__activeChatRoom = roomKey;
       window.dispatchEvent(new CustomEvent('chat-room-changed', { detail: { roomKey } }));
       const room = chatRooms[roomKey];
-      chatRoomShell.classList.add('is-open');
-      appContainer.classList.add('chat-open');
-      document.body.style.overflow = 'hidden';
-      replyingToMessage = null;
-      replyPreviewBar.style.display = 'none';
-      unreadMessages = 0;
-      updateUnreadPill();
-      chatRoomName.textContent = room.name;
-      chatRoomStatus.textContent = room.status;
-      chatRoomStatus.classList.remove('live','muted');
-      chatRoomStatus.classList.add(room.statusClass);
+      chatRoomShell.classList.add('is-open'); appContainer.classList.add('chat-open'); document.body.style.overflow = 'hidden';
+      replyingToMessage = null; replyPreviewBar.style.display = 'none'; unreadMessages = 0; updateUnreadPill();
+      chatRoomName.textContent = room.name; chatRoomStatus.textContent = room.status; chatRoomStatus.classList.add(room.statusClass);
       chatMessages.innerHTML = `<div class="chat-date-sticker">${todayStickerText()}</div>`;
       isHydratingRoom = true;
       try {
         room.starter.forEach(msg => addMessageToFeed(msg.side, msg.text, msg.time, msg.side==='outgoing'?'seen':null, null, false));
         loadMessagesFromStorage(roomKey);
-      } finally {
-        isHydratingRoom = false;
-      }
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      chatInput.value='';
-      setComposerMode();
-      lucide.createIcons();
+      } finally { isHydratingRoom = false; }
+      chatMessages.scrollTop = chatMessages.scrollHeight; chatInput.value=''; setComposerMode(); lucide.createIcons();
     }
+    function closeChatRoom(){ chatRoomShell.classList.remove('is-open'); appContainer.classList.remove('chat-open'); document.body.style.overflow = ''; chatInput.value=''; setComposerMode(); }
 
-    function closeChatRoom(){ 
-      chatRoomShell.classList.remove('is-open'); 
-      appContainer.classList.remove('chat-open'); 
-      document.body.style.overflow = ''; 
-      chatInput.value=''; 
-      setComposerMode(); 
-    }
-
-    // ========== BLOCK USER MESSAGES – show unverified modal ==========
-    const unverifiedModal = document.getElementById('unverifiedModal');
-    const unverifiedModalSupportBtn = document.getElementById('unverifiedModalSupportBtn');
-    const unverifiedModalCloseBtn = document.getElementById('unverifiedModalCloseBtn');
-
-    function openUnverifiedModal() {
-      unverifiedModal.classList.add('active');
-    }
-    function closeUnverifiedModal() {
-      unverifiedModal.classList.remove('active');
-    }
-    unverifiedModalSupportBtn.onclick = () => {
-      contactSupport();
-      closeUnverifiedModal();
-    };
-    unverifiedModalCloseBtn.onclick = closeUnverifiedModal;
-    unverifiedModal.addEventListener('click', (e) => {
-      if (e.target === unverifiedModal) closeUnverifiedModal();
-    });
-
-    // Override sendChatMessage – always show modal, never send
     function sendChatMessage(){
+      // Block user messages – show unverified modal
       openUnverifiedModal();
-      // Also clear input and pending image if any
       if(pendingImage) pendingImage = null;
       chatInput.value = '';
       setComposerMode();
@@ -1096,29 +1140,133 @@
         document.getElementById('aiTypingIndicator')?.remove();
         const row = document.createElement('div'); row.className = 'chat-msg-row incoming typing-row'; row.id = 'aiTypingIndicator';
         const isValidAvatarUrl = persona.avatar && (persona.avatar.startsWith('http') || persona.avatar.startsWith('assets/'));
-        let avatarContent = '';
-        if(isValidAvatarUrl){
-          avatarContent = `<img src="${persona.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${persona.name.charAt(0)}';">`;
-        } else {
-          avatarContent = persona.name.charAt(0);
-        }
+        let avatarContent = isValidAvatarUrl ? `<img src="${persona.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${persona.name.charAt(0)}';">` : persona.name.charAt(0);
         row.innerHTML = `<div class="chat-avatar-bubble">${avatarContent}</div><div class="chat-bubble incoming typing-bubble"><span></span><span></span><span></span></div>`;
         chatMessages.appendChild(row); chatMessages.scrollTop = chatMessages.scrollHeight;
       },
       hideTyping: () => document.getElementById('aiTypingIndicator')?.remove(),
       addIncomingMessage: (msgData) => buildIncomingMessage(msgData),
-      addSystemMessage: (msgData) => {
-        const row = document.createElement('div'); row.className = 'chat-msg-row incoming';
-        const bubble = document.createElement('div'); bubble.className = 'chat-bubble incoming';
-        bubble.style.background='#eef2ff'; bubble.style.borderColor='#cbd5e1';
-        bubble.innerHTML = `${msgData.text}<span class="chat-bubble-time" style="display:block;margin-top:6px;font-size:11px;opacity:.75;">${msgData.time}</span>`;
-        row.innerHTML = `<div class="chat-avatar-bubble" style="background:#cbd5e1;">📢</div>`; row.appendChild(bubble);
-        chatMessages.appendChild(row); chatMessages.scrollTop = chatMessages.scrollHeight;
-        saveMessagesToStorage();
-      },
+      addSystemMessage: (msgData) => { buildIncomingMessage({ senderName: 'System', text: msgData.text, time: msgData.time, personaId: 'system' }); },
       isChatRoomActive: () => chatRoomShell.classList.contains('is-open'),
       getCurrentRoom: () => window.__activeChatRoom || currentChatRoom
     };
+
+    // ========== PLAN & PAYMENT MODAL LOGIC ==========
+    const planModal = document.getElementById('planModal');
+    const paymentModal = document.getElementById('paymentModal');
+    const getSignalBtn = document.getElementById('getSignalBtn');
+    const closePlanModalBtn = document.getElementById('closePlanModalBtn');
+    const closePaymentModalBtn = document.getElementById('closePaymentModalBtn');
+    const copyWalletBtn = document.getElementById('copyWalletBtn');
+    const paidBtn = document.getElementById('paidBtn');
+    const paymentStatusDiv = document.getElementById('paymentStatus');
+    const paymentFailedMsg = document.getElementById('paymentFailedMsg');
+    const paymentSupportBtn = document.getElementById('paymentSupportBtn');
+    const retryPaymentBtn = document.getElementById('retryPaymentBtn');
+    const walletAddressSpan = document.getElementById('walletAddress');
+
+    let selectedPlan = null;
+    let selectedPrice = null;
+    let paymentTimeout = null;
+
+    function contactSupport() { window.open('https://t.me/your_support_username', '_blank'); }
+
+    function updateCountdown() {
+      const target = new Date(new Date().getFullYear(), 4, 1); // May 1st (month 4 = May)
+      const now = new Date();
+      const diff = target - now;
+      if (diff <= 0) {
+        document.getElementById('countdownTimer').innerText = "0d 0h 0m";
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (86400000)) / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      document.getElementById('countdownTimer').innerText = `${days}d ${hours}h ${minutes}m`;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+
+    function openPlanModal() { planModal.classList.add('active'); }
+    function closePlanModal() { planModal.classList.remove('active'); }
+    function openPaymentModal(plan, price) {
+      selectedPlan = plan; selectedPrice = price;
+      paymentStatusDiv.innerHTML = '';
+      paymentFailedMsg.style.display = 'none';
+      paymentModal.classList.add('active');
+    }
+    function closePaymentModal() { paymentModal.classList.remove('active'); selectedPlan = null; selectedPrice = null; }
+
+    document.querySelectorAll('.plan-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const plan = card.dataset.plan;
+        const price = card.dataset.price;
+        openPaymentModal(plan, price);
+        closePlanModal();
+      });
+    });
+
+    copyWalletBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(walletAddressSpan.innerText);
+      copyWalletBtn.innerText = '✅ Copied!';
+      setTimeout(() => { copyWalletBtn.innerText = '📋 Copy Address'; }, 2000);
+    });
+
+    paidBtn.addEventListener('click', () => {
+      if (paymentTimeout) return;
+      paidBtn.disabled = true;
+      paidBtn.innerText = '⏳ Verifying payment...';
+      paymentStatusDiv.innerHTML = 'Please wait, verifying transaction...';
+      paymentTimeout = setTimeout(() => {
+        paidBtn.disabled = false;
+        paidBtn.innerText = '✅ I have paid';
+        paymentStatusDiv.innerHTML = '';
+        paymentFailedMsg.style.display = 'block';
+      }, 6000);
+    });
+
+    retryPaymentBtn.addEventListener('click', () => {
+      paymentFailedMsg.style.display = 'none';
+      if (paymentTimeout) { clearTimeout(paymentTimeout); paymentTimeout = null; }
+      paidBtn.disabled = false;
+      paidBtn.innerText = '✅ I have paid';
+      paymentStatusDiv.innerHTML = '';
+    });
+
+    paymentSupportBtn.addEventListener('click', contactSupport);
+    getSignalBtn.onclick = (e) => { e.preventDefault(); openPlanModal(); };
+    closePlanModalBtn.onclick = closePlanModal;
+    closePaymentModalBtn.onclick = closePaymentModal;
+    planModal.addEventListener('click', (e) => { if (e.target === planModal) closePlanModal(); });
+    paymentModal.addEventListener('click', (e) => { if (e.target === paymentModal) closePaymentModal(); });
+
+    // ========== FLOATING SUPPORT BUTTON ==========
+    const contactSupportBtn = document.getElementById('contactSupportBtn');
+    contactSupportBtn.onclick = contactSupport;
+
+    // ========== REFERRAL COPY ==========
+    const inviteBtn = document.querySelector('.invite-btn');
+    if (inviteBtn) {
+      inviteBtn.onclick = () => {
+        navigator.clipboard.writeText('@pocketoptioninside_robot');
+        inviteBtn.innerText = 'Copied!';
+        setTimeout(() => { inviteBtn.innerText = 'Copy referral link'; }, 2000);
+      };
+    }
+
+    // ========== MODAL FOR UNVERIFIED CHAT USER ==========
+    const unverifiedModal = document.getElementById('unverifiedModal');
+    const unverifiedModalSupportBtn = document.getElementById('unverifiedModalSupportBtn');
+    const unverifiedModalCloseBtn = document.getElementById('unverifiedModalCloseBtn');
+    function openUnverifiedModal() { unverifiedModal.classList.add('active'); }
+    function closeUnverifiedModal() { unverifiedModal.classList.remove('active'); }
+    unverifiedModalSupportBtn.onclick = () => { contactSupport(); closeUnverifiedModal(); };
+    unverifiedModalCloseBtn.onclick = closeUnverifiedModal;
+    unverifiedModal.addEventListener('click', (e) => { if (e.target === unverifiedModal) closeUnverifiedModal(); });
+
+    // ========== TIMER BUTTONS (existing) ==========
+    const timerBtns = document.querySelectorAll('.timer-btn');
+    timerBtns.forEach(btn => btn.onclick = ()=>{ if(!isSubscribed) return; const s = parseInt(btn.dataset.seconds); if(activeTimer) clearTimeout(activeTimer); activeTimer = setTimeout(()=>{ activeTimer=null; }, s*1000); timerBtns.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); });
 
     // ========== PAGE NAVIGATION ==========
     const pages = { home:document.getElementById('homePage'), signals:document.getElementById('signalsPage'), training:document.getElementById('trainingPage'), chat:document.getElementById('chatPage'), referrals:document.getElementById('referralsPage'), progress:document.getElementById('progressPage') };
@@ -1135,7 +1283,6 @@
     lucide.createIcons();
   })();
 </script>
-<!-- AI Persona Engine (external) – will be provided separately -->
 <script src="ai-persona-engine.js"></script>
 </body>
 </html>
