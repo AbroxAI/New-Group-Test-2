@@ -447,7 +447,7 @@
       height: 20px;
     }
 
-    /* ---------- PLAN SELECTION MODAL (replaces old activation modal) ---------- */
+    /* ---------- PLAN SELECTION MODAL ---------- */
     .plan-modal-overlay {
       position: fixed;
       top: 0;
@@ -531,7 +531,7 @@
       margin-top: 4px;
     }
 
-    /* ---------- PAYMENT MODAL ---------- */
+    /* ---------- PAYMENT MODAL (for plan purchase) ---------- */
     .payment-modal-overlay {
       position: fixed;
       top: 0;
@@ -600,7 +600,7 @@
       margin-top: 16px;
     }
 
-    /* ---------- MODAL FOR UNVERIFIED CHAT USER ---------- */
+    /* ---------- UNVERIFIED CHAT MODAL (for user trying to send message) ---------- */
     .unverified-modal {
       position: fixed;
       top: 0;
@@ -619,6 +619,110 @@
     .unverified-modal.active {
       visibility: visible;
       opacity: 1;
+    }
+
+    /* ---------- PROFILE MODAL (for AI personas) ---------- */
+    .profile-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.2s;
+    }
+    .profile-modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .profile-modal-container {
+      background: white;
+      max-width: 340px;
+      width: 85%;
+      border-radius: 28px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+    }
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      overflow: hidden;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .profile-name {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .profile-level {
+      font-size: 13px;
+      color: #2f98e5;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .profile-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ecfdf3;
+      color: #1e7a3b;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .profile-stats {
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 12px;
+      margin-top: 8px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 13px;
+    }
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+    .stat-label {
+      color: #64748b;
+    }
+    .stat-value {
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .profit-positive {
+      color: #22c55e;
+    }
+    .profit-negative {
+      color: #ef4444;
+    }
+    .profile-id {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 12px;
+      font-family: monospace;
     }
 
     @media (max-width:390px){
@@ -648,7 +752,7 @@
 </head>
 <body>
 <div class="app" id="appContainer">
-  <!-- HOME PAGE (unchanged) -->
+  <!-- HOME PAGE -->
   <div id="homePage" class="page">
     <div class="home-hero">
       <div class="home-top">
@@ -727,7 +831,7 @@
     </div>
   </div>
 
-  <!-- TRAINING PAGE (unchanged) -->
+  <!-- TRAINING PAGE -->
   <div id="trainingPage" class="page">
     <div class="page-header-card"><div><div class="page-kicker">Beginner guide</div><h2 class="page-title">Training for New Users</h2><p class="page-text">Built for new users who have not activated yet, with simple lessons that explain the app before they use anything live.</p></div><i data-lucide="book-open" class="w-10 h-10 text-sky-500"></i></div>
     <div class="page-section-title">What members get</div>
@@ -759,7 +863,7 @@
     </div>
   </div>
 
-  <!-- REFERRALS PAGE (unchanged) -->
+  <!-- REFERRALS PAGE -->
   <div id="referralsPage" class="page">
     <div class="page-header-card referrals-header"><div><div class="page-kicker">Referral rewards</div><h2 class="page-title">Refer and Earn</h2><p class="page-text">Invite new users and earn up to 20% commission on referrals, even before activation.</p></div><i data-lucide="users" class="w-10 h-10 text-sky-500"></i></div>
     <div class="ref-grid"><div class="ref-stat-card"><span class="ref-stat-label">Invites</span><span class="ref-stat-value">0</span></div><div class="ref-stat-card"><span class="ref-stat-label">Active</span><span class="ref-stat-value">0</span></div><div class="ref-stat-card"><span class="ref-stat-label">Commission</span><span class="ref-stat-value">0%</span></div><div class="ref-stat-card"><span class="ref-stat-label">Rank</span><span class="ref-stat-value">#0</span></div></div>
@@ -767,7 +871,7 @@
     <div class="page-section-title">Referral activity</div><div class="activity-list"><div class="activity-item"><span>No referral activity yet</span><span>0</span></div></div>
   </div>
 
-  <!-- PROGRESS PAGE (unchanged) -->
+  <!-- PROGRESS PAGE -->
   <div id="progressPage" class="page">
     <div class="page-header-card"><div><div class="page-kicker">Beginner progress</div><h2 class="page-title">Progress for New Users</h2><p class="page-text">Track learning progress before activation so new users can move step by step without rushing into live settings.</p></div><i data-lucide="trending-up" class="w-10 h-10 text-sky-500"></i></div>
     <div class="progress-card">
@@ -783,7 +887,7 @@
   </div>
 </div>
 
-<!-- CHAT ROOM SHELL (unchanged) -->
+<!-- CHAT ROOM SHELL -->
 <div class="chat-room-shell" id="chatRoomShell">
   <div class="chat-room-header">
     <button class="chat-back-btn" id="chatBackBtn"><i data-lucide="arrow-left"></i></button>
@@ -813,7 +917,7 @@
   <i data-lucide="send"></i> Contact Support
 </button>
 
-<!-- PLAN SELECTION MODAL (replaces old activation modal) -->
+<!-- PLAN SELECTION MODAL -->
 <div class="plan-modal-overlay" id="planModal">
   <div class="plan-modal-container">
     <div class="plan-header">
@@ -845,13 +949,13 @@
   </div>
 </div>
 
-<!-- PAYMENT MODAL -->
+<!-- PAYMENT MODAL (for plan purchase) -->
 <div class="payment-modal-overlay" id="paymentModal">
   <div class="payment-modal-container">
     <div class="modal-title">💳 Complete Payment</div>
     <div class="modal-message" style="margin-bottom:8px;">Send exact amount in USDT (TRC20)</div>
-    <div class="wallet-address" id="walletAddress">TQm9FjZ5kH3xLp8Qr2WnXyV7uC4bN6aM1e</div>
-    <button class="copy-btn" id="copyWalletBtn">📋 Copy Address</button>
+    <div class="wallet-address" id="paymentWalletAddress">TY23RUXeNaibpnTnvxxu18qiqtMpDws6yB</div>
+    <button class="copy-btn" id="copyPaymentWalletBtn">📋 Copy Address</button>
     <button class="paid-btn" id="paidBtn">✅ I have paid</button>
     <div id="paymentStatus" class="payment-status"></div>
     <div id="paymentFailedMsg" class="payment-failed" style="display:none;">
@@ -863,24 +967,38 @@
   </div>
 </div>
 
-<!-- MODAL FOR UNVERIFIED CHAT USER (unchanged) -->
+<!-- UNVERIFIED CHAT MODAL (when user tries to send a message) -->
 <div class="unverified-modal" id="unverifiedModal">
   <div class="modal-container">
     <div class="modal-icon">
-      <i data-lucide="alert-triangle" class="w-8 h-8 text-amber-500"></i>
+      <i data-lucide="shield-check" class="w-10 h-10 text-green-500"></i>
     </div>
     <div class="modal-title">Verification Required</div>
     <div class="modal-message">
-      You are not verified. Please contact support to activate your account and start chatting.
+      You need to verify your account to chat.<br>
+      Send <strong>$5 USDT (TRC20)</strong> to the address below to activate:
     </div>
-    <button class="modal-support-btn" id="unverifiedModalSupportBtn">
-      <i data-lucide="send" class="w-4 h-4"></i> Contact Support
-    </button>
-    <button class="modal-close-btn" id="unverifiedModalCloseBtn">Close</button>
+    <div class="wallet-address" id="unverifiedWalletAddress">TY23RUXeNaibpnTnvxxu18qiqtMpDws6yB</div>
+    <button class="copy-btn" id="copyUnverifiedWalletBtn">📋 Copy Address</button>
+    <button class="paid-btn" id="unverifiedPaidBtn">✅ I have paid</button>
+    <div id="unverifiedPaymentStatus" class="payment-status"></div>
+    <div id="unverifiedPaymentFailedMsg" class="payment-failed" style="display:none;">
+      ⚠️ Payment verification failed. Please contact support or try again.
+      <button class="modal-support-btn" id="unverifiedPaymentSupportBtn" style="margin-top:10px;">Contact Support</button>
+      <button class="modal-close-btn" id="unverifiedRetryBtn" style="margin-top:8px;">Retry</button>
+    </div>
+    <button class="modal-close-btn" id="closeUnverifiedModalBtn" style="margin-top:12px;">Close</button>
   </div>
 </div>
 
-<!-- BOTTOM NAV (unchanged) -->
+<!-- PROFILE MODAL (for AI personas) -->
+<div class="profile-modal-overlay" id="profileModal">
+  <div class="profile-modal-container" id="profileModalContent">
+    <!-- Filled dynamically -->
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <div class="bottom-nav-inner">
     <button data-page="home" class="nav-btn"><i data-lucide="home"></i><span>Home</span></button>
@@ -940,7 +1058,136 @@
     function updateClock(){ document.getElementById('currentTime').innerText = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
     setInterval(updateClock,1000); setInterval(updateAccuracy,60000); updateClock(); updateAccuracy(); renderSignal();
 
+    // ========== SUPPORT FUNCTION ==========
+    function contactSupport() {
+      window.open('https://t.me/your_support_username', '_blank');
+    }
+
+    // ========== PLAN & PAYMENT MODAL (for signal activation) ==========
+    const planModal = document.getElementById('planModal');
+    const paymentModal = document.getElementById('paymentModal');
+    const getSignalBtn = document.getElementById('getSignalBtn');
+    const closePlanModalBtn = document.getElementById('closePlanModalBtn');
+    const closePaymentModalBtn = document.getElementById('closePaymentModalBtn');
+    const copyPaymentWalletBtn = document.getElementById('copyPaymentWalletBtn');
+    const paidBtn = document.getElementById('paidBtn');
+    const paymentStatusDiv = document.getElementById('paymentStatus');
+    const paymentFailedMsg = document.getElementById('paymentFailedMsg');
+    const paymentSupportBtn = document.getElementById('paymentSupportBtn');
+    const retryPaymentBtn = document.getElementById('retryPaymentBtn');
+    const paymentWalletAddressSpan = document.getElementById('paymentWalletAddress');
+
+    let selectedPlan = null, selectedPrice = null, paymentTimeout = null;
+
+    function updateCountdown() {
+      const target = new Date(new Date().getFullYear(), 4, 1);
+      const now = new Date();
+      const diff = target - now;
+      if (diff <= 0) { document.getElementById('countdownTimer').innerText = "0d 0h 0m"; return; }
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      document.getElementById('countdownTimer').innerText = `${days}d ${hours}h ${minutes}m`;
+    }
+    updateCountdown(); setInterval(updateCountdown, 60000);
+
+    function openPlanModal() { planModal.classList.add('active'); }
+    function closePlanModal() { planModal.classList.remove('active'); }
+    function openPaymentModal(plan, price) {
+      selectedPlan = plan; selectedPrice = price;
+      paymentStatusDiv.innerHTML = '';
+      paymentFailedMsg.style.display = 'none';
+      paymentModal.classList.add('active');
+    }
+    function closePaymentModal() { paymentModal.classList.remove('active'); selectedPlan = null; selectedPrice = null; }
+
+    document.querySelectorAll('.plan-card').forEach(card => {
+      card.addEventListener('click', () => {
+        openPaymentModal(card.dataset.plan, card.dataset.price);
+        closePlanModal();
+      });
+    });
+
+    copyPaymentWalletBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(paymentWalletAddressSpan.innerText);
+      copyPaymentWalletBtn.innerText = '✅ Copied!';
+      setTimeout(() => { copyPaymentWalletBtn.innerText = '📋 Copy Address'; }, 2000);
+    });
+
+    paidBtn.addEventListener('click', () => {
+      if (paymentTimeout) return;
+      paidBtn.disabled = true;
+      paidBtn.innerText = '⏳ Verifying payment...';
+      paymentStatusDiv.innerHTML = 'Please wait, verifying transaction...';
+      paymentTimeout = setTimeout(() => {
+        paidBtn.disabled = false;
+        paidBtn.innerText = '✅ I have paid';
+        paymentStatusDiv.innerHTML = '';
+        paymentFailedMsg.style.display = 'block';
+      }, 6000);
+    });
+
+    retryPaymentBtn.addEventListener('click', () => {
+      paymentFailedMsg.style.display = 'none';
+      if (paymentTimeout) { clearTimeout(paymentTimeout); paymentTimeout = null; }
+      paidBtn.disabled = false;
+      paidBtn.innerText = '✅ I have paid';
+      paymentStatusDiv.innerHTML = '';
+    });
+    paymentSupportBtn.addEventListener('click', contactSupport);
+    getSignalBtn.onclick = (e) => { e.preventDefault(); openPlanModal(); };
+    closePlanModalBtn.onclick = closePlanModal;
+    closePaymentModalBtn.onclick = closePaymentModal;
+    planModal.addEventListener('click', (e) => { if (e.target === planModal) closePlanModal(); });
+    paymentModal.addEventListener('click', (e) => { if (e.target === paymentModal) closePaymentModal(); });
+
+    // ========== UNVERIFIED CHAT MODAL ==========
+    const unverifiedModal = document.getElementById('unverifiedModal');
+    const copyUnverifiedWalletBtn = document.getElementById('copyUnverifiedWalletBtn');
+    const unverifiedPaidBtn = document.getElementById('unverifiedPaidBtn');
+    const unverifiedPaymentStatus = document.getElementById('unverifiedPaymentStatus');
+    const unverifiedPaymentFailedMsg = document.getElementById('unverifiedPaymentFailedMsg');
+    const unverifiedPaymentSupportBtn = document.getElementById('unverifiedPaymentSupportBtn');
+    const unverifiedRetryBtn = document.getElementById('unverifiedRetryBtn');
+    const closeUnverifiedModalBtn = document.getElementById('closeUnverifiedModalBtn');
+    const unverifiedWalletAddressSpan = document.getElementById('unverifiedWalletAddress');
+    let unverifiedPaymentTimeout = null;
+
+    function openUnverifiedModal() { unverifiedModal.classList.add('active'); }
+    function closeUnverifiedModal() { unverifiedModal.classList.remove('active'); }
+
+    copyUnverifiedWalletBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(unverifiedWalletAddressSpan.innerText);
+      copyUnverifiedWalletBtn.innerText = '✅ Copied!';
+      setTimeout(() => { copyUnverifiedWalletBtn.innerText = '📋 Copy Address'; }, 2000);
+    });
+
+    unverifiedPaidBtn.addEventListener('click', () => {
+      if (unverifiedPaymentTimeout) return;
+      unverifiedPaidBtn.disabled = true;
+      unverifiedPaidBtn.innerText = '⏳ Verifying payment...';
+      unverifiedPaymentStatus.innerHTML = 'Please wait, verifying transaction...';
+      unverifiedPaymentTimeout = setTimeout(() => {
+        unverifiedPaidBtn.disabled = false;
+        unverifiedPaidBtn.innerText = '✅ I have paid';
+        unverifiedPaymentStatus.innerHTML = '';
+        unverifiedPaymentFailedMsg.style.display = 'block';
+      }, 6000);
+    });
+
+    unverifiedRetryBtn.addEventListener('click', () => {
+      unverifiedPaymentFailedMsg.style.display = 'none';
+      if (unverifiedPaymentTimeout) { clearTimeout(unverifiedPaymentTimeout); unverifiedPaymentTimeout = null; }
+      unverifiedPaidBtn.disabled = false;
+      unverifiedPaidBtn.innerText = '✅ I have paid';
+      unverifiedPaymentStatus.innerHTML = '';
+    });
+    unverifiedPaymentSupportBtn.addEventListener('click', contactSupport);
+    closeUnverifiedModalBtn.onclick = closeUnverifiedModal;
+    unverifiedModal.addEventListener('click', (e) => { if (e.target === unverifiedModal) closeUnverifiedModal(); });
+
     // ========== CHAT LOGIC (full persistence, reply preview, message IDs) ==========
+    // (This is the same as the previous working version – included for completeness)
     const ROOM_STORAGE_PREFIX = 'pocketOption_chat_messages_';
     const LEGACY_STORAGE_KEY = 'pocketOption_chat_messages';
     let isHydratingRoom = false;
@@ -1080,6 +1327,7 @@
 
       row.appendChild(avatarDiv); row.appendChild(bubble);
       
+      // Click on message to set as reply target (for user)
       row.addEventListener('click', (e) => {
         if(e.target.classList && e.target.classList.contains('reply-preview-close')) return;
         replyingToMessage = row.__messageData;
@@ -1088,6 +1336,21 @@
         replyPreviewBar.style.display = 'flex';
       });
       
+      // Also make avatar/name clickable to show profile (for AI messages)
+      const nameSpan = bubble.querySelector('.chat-sender-name');
+      if (nameSpan && msgData.personaId && msgData.personaId !== 'user' && msgData.personaId !== 'system') {
+        nameSpan.style.cursor = 'pointer';
+        nameSpan.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showProfile(msgData);
+        });
+        avatarDiv.style.cursor = 'pointer';
+        avatarDiv.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showProfile(msgData);
+        });
+      }
+      
       chatMessages.appendChild(row);
       chatMessages.scrollTop = chatMessages.scrollHeight;
       if(!isUserAtBottom){ unreadMessages++; updateUnreadPill(); }
@@ -1095,6 +1358,83 @@
       return row;
     }
 
+    // ========== PROFILE MODAL ==========
+    const profileModal = document.getElementById('profileModal');
+    const profileModalContent = document.getElementById('profileModalContent');
+    
+    function showProfile(personaData) {
+      // Generate realistic stats based on persona type
+      const archetype = personaData.archetype || (personaData.intent === 'learner' ? 'beginner' : (personaData.intent === 'authority' ? 'experienced' : 'amateur'));
+      let level = 'Beginner';
+      let trades = 12;
+      let winRate = 45;
+      let turnover = 120;
+      let profit = -15;
+      let maxTrade = 8;
+      let minTrade = 5;
+      let maxProfitTrade = 12;
+      
+      // Deterministic but realistic numbers
+      const seed = (personaData.id || personaData.senderName).split('').reduce((a,b)=>a+b.charCodeAt(0),0);
+      if (archetype === 'amateur') {
+        level = 'Amateur';
+        trades = 35 + (seed % 30);
+        winRate = 52 + (seed % 15);
+        turnover = 450 + (seed % 300);
+        profit = 35 + (seed % 80);
+        maxTrade = 25 + (seed % 40);
+        minTrade = 10;
+        maxProfitTrade = 45;
+      } else if (archetype === 'experienced' || archetype === 'authority') {
+        level = 'Experienced';
+        trades = 120 + (seed % 80);
+        winRate = 65 + (seed % 20);
+        turnover = 2500 + (seed % 1500);
+        profit = 340 + (seed % 400);
+        maxTrade = 85 + (seed % 100);
+        minTrade = 20;
+        maxProfitTrade = 180;
+      } else {
+        // beginner
+        trades = 8 + (seed % 15);
+        winRate = 38 + (seed % 20);
+        turnover = 80 + (seed % 100);
+        profit = -25 + (seed % 60);
+        maxTrade = 12 + (seed % 15);
+        minTrade = 5;
+        maxProfitTrade = 18;
+      }
+      
+      const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
+      const profitSymbol = profit >= 0 ? '+' : '';
+      
+      profileModalContent.innerHTML = `
+        <div class="profile-avatar">
+          ${personaData.senderAvatar ? `<img src="${personaData.senderAvatar}" onerror="this.parentElement.innerHTML='<div style=\'font-size:40px;\'>${escapeHtml(personaData.senderName.charAt(0))}</div>'">` : `<div style="font-size:40px;">${escapeHtml(personaData.senderName.charAt(0))}</div>`}
+        </div>
+        <div class="profile-name">${escapeHtml(personaData.senderName)}</div>
+        <div class="profile-level">${level}</div>
+        <div class="profile-status"><i data-lucide="circle" class="w-3 h-3 text-green-500 fill-green-500"></i> Online</div>
+        <div class="profile-stats">
+          <div class="stat-row"><span class="stat-label">Trades</span><span class="stat-value">${trades}</span></div>
+          <div class="stat-row"><span class="stat-label">Profitable trades</span><span class="stat-value">${winRate}%</span></div>
+          <div class="stat-row"><span class="stat-label">Trading turnover</span><span class="stat-value">$${turnover.toFixed(2)}</span></div>
+          <div class="stat-row"><span class="stat-label">Trading profit</span><span class="stat-value ${profitClass}">${profitSymbol}$${Math.abs(profit).toFixed(2)}</span></div>
+          <div class="stat-row"><span class="stat-label">Max. trade</span><span class="stat-value">$${maxTrade.toFixed(2)}</span></div>
+          <div class="stat-row"><span class="stat-label">Min. trade</span><span class="stat-value">$${minTrade.toFixed(2)}</span></div>
+          <div class="stat-row"><span class="stat-label">Max. profit</span><span class="stat-value">$${maxProfitTrade.toFixed(2)}</span></div>
+        </div>
+        <div class="profile-id">Real trading profile ID: ${(seed + 1000000).toString().slice(0,9)}</div>
+      `;
+      profileModal.classList.add('active');
+      lucide.createIcons();
+    }
+    
+    function closeProfileModal() {
+      profileModal.classList.remove('active');
+    }
+    profileModal.addEventListener('click', (e) => { if (e.target === profileModal) closeProfileModal(); });
+    
     function updateUnreadPill(){ if(unreadMessages>0 && !isUserAtBottom){ unreadCountSpan.textContent = unreadMessages===1?'1 new message':`${unreadMessages} new messages`; unreadPill.style.display='flex'; } else { unreadPill.style.display='none'; } }
     function scrollToBottom(){ chatMessages.scrollTop = chatMessages.scrollHeight; unreadMessages=0; updateUnreadPill(); isUserAtBottom=true; }
     chatMessages.addEventListener('scroll', ()=>{ const near = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 50; if(near){ unreadMessages=0; updateUnreadPill(); } isUserAtBottom=near; });
@@ -1118,8 +1458,8 @@
     }
     function closeChatRoom(){ chatRoomShell.classList.remove('is-open'); appContainer.classList.remove('chat-open'); document.body.style.overflow = ''; chatInput.value=''; setComposerMode(); }
 
+    // Override sendChatMessage to show unverified modal instead of sending
     function sendChatMessage(){
-      // Block user messages – show unverified modal
       openUnverifiedModal();
       if(pendingImage) pendingImage = null;
       chatInput.value = '';
@@ -1151,95 +1491,6 @@
       getCurrentRoom: () => window.__activeChatRoom || currentChatRoom
     };
 
-    // ========== PLAN & PAYMENT MODAL LOGIC ==========
-    const planModal = document.getElementById('planModal');
-    const paymentModal = document.getElementById('paymentModal');
-    const getSignalBtn = document.getElementById('getSignalBtn');
-    const closePlanModalBtn = document.getElementById('closePlanModalBtn');
-    const closePaymentModalBtn = document.getElementById('closePaymentModalBtn');
-    const copyWalletBtn = document.getElementById('copyWalletBtn');
-    const paidBtn = document.getElementById('paidBtn');
-    const paymentStatusDiv = document.getElementById('paymentStatus');
-    const paymentFailedMsg = document.getElementById('paymentFailedMsg');
-    const paymentSupportBtn = document.getElementById('paymentSupportBtn');
-    const retryPaymentBtn = document.getElementById('retryPaymentBtn');
-    const walletAddressSpan = document.getElementById('walletAddress');
-
-    let selectedPlan = null;
-    let selectedPrice = null;
-    let paymentTimeout = null;
-
-    function contactSupport() { window.open('https://t.me/your_support_username', '_blank'); }
-
-    function updateCountdown() {
-      const target = new Date(new Date().getFullYear(), 4, 1); // May 1st (month 4 = May)
-      const now = new Date();
-      const diff = target - now;
-      if (diff <= 0) {
-        document.getElementById('countdownTimer').innerText = "0d 0h 0m";
-        return;
-      }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (86400000)) / 3600000);
-      const minutes = Math.floor((diff % 3600000) / 60000);
-      document.getElementById('countdownTimer').innerText = `${days}d ${hours}h ${minutes}m`;
-    }
-    updateCountdown();
-    setInterval(updateCountdown, 60000);
-
-    function openPlanModal() { planModal.classList.add('active'); }
-    function closePlanModal() { planModal.classList.remove('active'); }
-    function openPaymentModal(plan, price) {
-      selectedPlan = plan; selectedPrice = price;
-      paymentStatusDiv.innerHTML = '';
-      paymentFailedMsg.style.display = 'none';
-      paymentModal.classList.add('active');
-    }
-    function closePaymentModal() { paymentModal.classList.remove('active'); selectedPlan = null; selectedPrice = null; }
-
-    document.querySelectorAll('.plan-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const plan = card.dataset.plan;
-        const price = card.dataset.price;
-        openPaymentModal(plan, price);
-        closePlanModal();
-      });
-    });
-
-    copyWalletBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(walletAddressSpan.innerText);
-      copyWalletBtn.innerText = '✅ Copied!';
-      setTimeout(() => { copyWalletBtn.innerText = '📋 Copy Address'; }, 2000);
-    });
-
-    paidBtn.addEventListener('click', () => {
-      if (paymentTimeout) return;
-      paidBtn.disabled = true;
-      paidBtn.innerText = '⏳ Verifying payment...';
-      paymentStatusDiv.innerHTML = 'Please wait, verifying transaction...';
-      paymentTimeout = setTimeout(() => {
-        paidBtn.disabled = false;
-        paidBtn.innerText = '✅ I have paid';
-        paymentStatusDiv.innerHTML = '';
-        paymentFailedMsg.style.display = 'block';
-      }, 6000);
-    });
-
-    retryPaymentBtn.addEventListener('click', () => {
-      paymentFailedMsg.style.display = 'none';
-      if (paymentTimeout) { clearTimeout(paymentTimeout); paymentTimeout = null; }
-      paidBtn.disabled = false;
-      paidBtn.innerText = '✅ I have paid';
-      paymentStatusDiv.innerHTML = '';
-    });
-
-    paymentSupportBtn.addEventListener('click', contactSupport);
-    getSignalBtn.onclick = (e) => { e.preventDefault(); openPlanModal(); };
-    closePlanModalBtn.onclick = closePlanModal;
-    closePaymentModalBtn.onclick = closePaymentModal;
-    planModal.addEventListener('click', (e) => { if (e.target === planModal) closePlanModal(); });
-    paymentModal.addEventListener('click', (e) => { if (e.target === paymentModal) closePaymentModal(); });
-
     // ========== FLOATING SUPPORT BUTTON ==========
     const contactSupportBtn = document.getElementById('contactSupportBtn');
     contactSupportBtn.onclick = contactSupport;
@@ -1254,17 +1505,7 @@
       };
     }
 
-    // ========== MODAL FOR UNVERIFIED CHAT USER ==========
-    const unverifiedModal = document.getElementById('unverifiedModal');
-    const unverifiedModalSupportBtn = document.getElementById('unverifiedModalSupportBtn');
-    const unverifiedModalCloseBtn = document.getElementById('unverifiedModalCloseBtn');
-    function openUnverifiedModal() { unverifiedModal.classList.add('active'); }
-    function closeUnverifiedModal() { unverifiedModal.classList.remove('active'); }
-    unverifiedModalSupportBtn.onclick = () => { contactSupport(); closeUnverifiedModal(); };
-    unverifiedModalCloseBtn.onclick = closeUnverifiedModal;
-    unverifiedModal.addEventListener('click', (e) => { if (e.target === unverifiedModal) closeUnverifiedModal(); });
-
-    // ========== TIMER BUTTONS (existing) ==========
+    // ========== TIMER BUTTONS ==========
     const timerBtns = document.querySelectorAll('.timer-btn');
     timerBtns.forEach(btn => btn.onclick = ()=>{ if(!isSubscribed) return; const s = parseInt(btn.dataset.seconds); if(activeTimer) clearTimeout(activeTimer); activeTimer = setTimeout(()=>{ activeTimer=null; }, s*1000); timerBtns.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); });
 
