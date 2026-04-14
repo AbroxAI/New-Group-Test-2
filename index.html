@@ -1283,7 +1283,7 @@
       const messageId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2,8);
       const row = document.createElement('div'); row.className = `chat-msg-row ${side}`; row.id = messageId; row.dataset.messageId = messageId;
       window.messageMap[messageId] = row;
-      row.__messageData = { id: messageId, senderName: side === 'outgoing' ? 'You' : 'Unknown', text: text };
+      row.__messageData = { id: messageId, senderName: side === 'outgoing' ? 'You' : 'Unknown', text: text, personaId: side === 'outgoing' ? 'user' : null };
       const bubble = document.createElement('div'); bubble.className = `chat-bubble ${side}`;
       let content = text;
       if(imageUrl) content = `<img src="${imageUrl}" class="chat-image">` + (text?`<div style="margin-top:6px;">${text}</div>`:'');
@@ -1305,7 +1305,12 @@
       
       const row = document.createElement('div'); row.className = 'chat-msg-row incoming'; row.id = messageId; row.dataset.messageId = messageId;
       window.messageMap[messageId] = row;
-      row.__messageData = { id: messageId, senderName: msgData.senderName, text: msgData.text };
+      row.__messageData = { 
+        id: messageId, 
+        senderName: msgData.senderName, 
+        text: msgData.text,
+        personaId: msgData.personaId || null   // ✅ Added personaId for AI messages
+      };
 
       const avatarDiv = document.createElement('div'); avatarDiv.className = 'chat-avatar-bubble';
       const isValidAvatarUrl = msgData.senderAvatar && (msgData.senderAvatar.startsWith('http') || msgData.senderAvatar.startsWith('assets/'));
@@ -1338,10 +1343,15 @@
 
       row.appendChild(avatarDiv); row.appendChild(bubble);
       
-      // Click on message to set as reply target (for user)
+      // ✅ UPDATED: Only show global reply preview bar for non-AI messages (user manual reply)
       row.addEventListener('click', (e) => {
         if(e.target.classList && e.target.classList.contains('reply-preview-close')) return;
-        replyingToMessage = row.__messageData;
+        const msgData = row.__messageData;
+        // Do NOT show global reply preview if this is an AI message (personaId present and not 'user')
+        if (msgData && msgData.personaId && msgData.personaId !== 'user') {
+          return;
+        }
+        replyingToMessage = msgData;
         replyPreviewSender.innerText = replyingToMessage.senderName;
         replyPreviewText.innerText = replyingToMessage.text.substring(0, 60);
         replyPreviewBar.style.display = 'flex';
