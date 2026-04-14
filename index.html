@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* ========== FULL ORIGINAL STYLES (unchanged) ========== */
+    /* ========== FULL ORIGINAL STYLES (unchanged – kept for brevity) ========== */
     :root{
       --bg:#ebf1fa; --card:#ffffff; --ink:#1f2633; --muted:#7f8794;
       --blue:#2e9fe8; --blue-dark:#24263d; --green:#4ab54d; --yellow:#f3bf23;
@@ -1021,7 +1021,7 @@
   </div>
 </div>
 
-<!-- UNVERIFIED CHAT MODAL (fixed – strong instruction, no wallet) -->
+<!-- UNVERIFIED CHAT MODAL -->
 <div class="unverified-modal" id="unverifiedModal">
   <div class="modal-container">
     <div class="modal-icon">
@@ -1374,7 +1374,6 @@
     const profileModalContent = document.getElementById('profileModalContent');
     
     function showProfile(personaData) {
-      // Determine level and archetype
       let level = 'Beginner';
       let trades = 12, winRate = 45, turnover = 120, profit = -15, maxTrade = 8, minTrade = 5, maxProfitTrade = 12;
       const archetype = personaData.archetype || (personaData.intent === 'learner' ? 'beginner' : (personaData.intent === 'authority' ? 'experienced' : 'amateur'));
@@ -1399,7 +1398,6 @@
         minTrade = 20;
         maxProfitTrade = 180;
       } else {
-        // beginner
         trades = 8 + (seed % 15);
         winRate = 38 + (seed % 20);
         turnover = 80 + (seed % 100);
@@ -1492,7 +1490,22 @@
       },
       hideTyping: () => document.getElementById('aiTypingIndicator')?.remove(),
       addIncomingMessage: (msgData) => buildIncomingMessage(msgData),
-      addSystemMessage: (msgData) => { buildIncomingMessage({ senderName: 'System', text: msgData.text, time: msgData.time, personaId: 'system' }); },
+      addSystemMessage: (msgData) => {
+        // Fix system icon to show megaphone 📢
+        const sysMsg = { ...msgData, senderName: 'System', personaId: 'system', senderAvatar: null };
+        const messageEl = buildIncomingMessage(sysMsg);
+        // Override the avatar to show 📢 instead of letter
+        const avatarDiv = messageEl.querySelector('.chat-avatar-bubble');
+        if (avatarDiv) {
+          avatarDiv.innerHTML = '📢';
+          avatarDiv.style.fontSize = '24px';
+          avatarDiv.style.background = '#cbd5e1';
+          avatarDiv.style.display = 'flex';
+          avatarDiv.style.alignItems = 'center';
+          avatarDiv.style.justifyContent = 'center';
+        }
+        return messageEl;
+      },
       isChatRoomActive: () => chatRoomShell.classList.contains('is-open'),
       getCurrentRoom: () => window.__activeChatRoom || currentChatRoom
     };
